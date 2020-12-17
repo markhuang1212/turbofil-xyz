@@ -7,7 +7,7 @@ const app = express()
 
 app.use('/bgc', BgcHandler)
 
-app.use(['/clusters', 'cluster'], ClusterHandler)
+app.use(['/clusters', '/cluster'], ClusterHandler)
 
 app.listen(Env.port, () => {
     console.log(`listening at port ${Env.port}`)

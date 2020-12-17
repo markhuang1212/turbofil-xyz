@@ -1,9 +1,11 @@
-import net from 'net'
-import SimpleRedisClient from './redis/SimpleRedisClient'
+// import { RedisClient } from 'redis'
+// import ClusterGetter from './getters/ClusterGetter'
+import RedisClientShared from './RedisClientShared'
 
-const client = new SimpleRedisClient()
-client.smallCmd(Buffer.from("set hello world\r\n", 'ascii')).then(data => {
-    data.toString('ascii')
-}).catch(e => {
-    console.error(e)
+RedisClientShared.hget('clusters:overview', 'arst', (err, str) => {
+    console.log('error')
+    console.log(err)
+    console.log('result:')
+    console.log(str)
+    process.exit(0)
 })

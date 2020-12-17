@@ -1,7 +1,10 @@
 {
     "cSpell.words": [
         "fnodes",
+        "hget",
+        "hset",
         "middlewares",
-        "rnodes"
+        "rnodes",
+        "turbofil"
     ]
 }
