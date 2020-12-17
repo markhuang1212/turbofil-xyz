@@ -1,9 +1,14 @@
 import { Router } from "express";
+import Env from "../Env";
 
 const ClusterHandler = Router()
 
 ClusterHandler.get('/all', (req, res) => {
-
+    res.json({
+        code: 200,
+        msg: "success",
+        clusters: Array.from(Env.clusters.keys())
+    })
 })
 
 ClusterHandler.get('/overview', (req, res) => {
