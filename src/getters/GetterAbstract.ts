@@ -1,22 +1,11 @@
-import { Collection, MongoClient } from "mongodb";
-import MongoClientShared from "../MongoClientShared";
+import Env from '../env.json'
 
-class GetterAbstract<T> {
-
-    client: MongoClient
-    dbName: string
-    collectionName: string
-
-    get collection(): Collection<T> {
-        return this.client.db(this.dbName).collection(this.collectionName)
+abstract class GetterAbstract {
+    periodic() {
+        this.task()
+        setInterval(this.task, Env.jobIntervalSeconds * 1000)
     }
-
-    constructor(collectionName: string, client: MongoClient = MongoClientShared, dbName = "turbofil") {
-        this.client = client
-        this.dbName = dbName
-        this.collectionName = collectionName
-    }
-
+    abstract task(): any
 }
 
 export default GetterAbstract

@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb'
+import Env from './env.json'
 
-const MongoClientShared = new MongoClient('mongo://localhost:27017')
+const MongoClientShared = new MongoClient(Env.mongoUri, { useUnifiedTopology: true })
 
 export default MongoClientShared

@@ -1,14 +1,23 @@
 import express from 'express'
-import Env from './Env'
+import Env from './env.json'
 import BgcHandler from './middlewares/BgcHandler'
 import ClusterHandler from './middlewares/ClusterHandler'
+import MongoClientShared from './MongoClientShared'
 
-const app = express()
+const start = async () => {
+    await MongoClientShared.connect()
+    console.log('mongo client connected.')
 
-app.use('/bgc', BgcHandler)
+    const app = express()
 
-app.use(['/clusters', '/cluster'], ClusterHandler)
+    app.use('/bgc', BgcHandler)
 
-app.listen(Env.port, () => {
-    console.log(`listening at port ${Env.port}`)
-})
+    app.use(['/clusters', '/cluster'], ClusterHandler)
+
+    app.listen(Env.port, () => {
+        console.log(`listening at port ${Env.port}`)
+    })
+
+}
+
+start()

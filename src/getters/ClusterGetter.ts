@@ -1,28 +1,59 @@
-import { RedisClient } from "redis";
-import Env from "../Env";
+
+import Env from '../env.json'
+import CollectionAbstract from './CollectionAbstract'
+import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
-import { promisify } from 'util'
-import { MongoClient } from "mongodb";
-import MongoClientShared from "../MongoClientShared";
-import GetterAbstract from "./GetterAbstract";
 
-interface Cluster {
-
+interface RNode {
+    rn_id: string
+    runStatus: boolean
+    loopStatus: boolean
+    backendStatus: boolean
+    fnodes: {
+        fn_id: string
+        fn_status: string
+        usedM: string
+        quotaM: string
+    }[]
 }
 
-class ClusterGetter extends GetterAbstract<Cluster> {
+class ClusterGetter extends GetterAbstract {
 
     static shared = new ClusterGetter()
 
     clusterInfo: Map<string, string>
 
+    rnodeCollections: Map<string, CollectionAbstract<RNode>>
+    clusterOverviews: Map<string, Object>
+
     constructor() {
-        super('clusters')
-        this.clusterInfo = Env.clusters
+        super()
+        this.clusterInfo = new Map(Object.entries(Env.clusters))
+        this.rnodeCollections = new Map()
+        this.clusterOverviews = new Map()
+        this.clusterInfo.forEach((val, key) => {
+            this.rnodeCollections.set(key, CollectionAbstract.makeCollectionAbstract<RNode>('clusters', key))
+        })
+        this.periodic()
+    }
+
+    task(){
+        this.cacheOverview()
+        this.cacheRNodes()
+        this.cacheFNodes()
     }
 
     async cacheOverviewForCluster(cluster: string, uri: string) {
-        
+        try {
+            const fetch_uri = `${uri}/stats/overview`
+            const response = await fetch(fetch_uri)
+            const responseJson = await response.json()
+            this.clusterOverviews.set(cluster, responseJson)
+            console.log(`overview for cluster ${cluster} finished.`)
+        } catch(e) {
+            console.error(`error occurred when caching overview for cluster ${cluster}`)
+            console.error(e)
+        }
     }
 
     async cacheOverview() {
@@ -40,8 +71,16 @@ class ClusterGetter extends GetterAbstract<Cluster> {
 
     }
 
-    async getOverviewForCluster(cluster: string) {
-        
+    async getRNodes() {
+
+    }
+
+    async getFNodes() {
+
+    }
+
+    getOverviewForCluster(cluster: string) {
+        return this.clusterOverviews.get(cluster)
     }
 
 }

@@ -4,6 +4,7 @@
         "hget",
         "hset",
         "middlewares",
+        "rnode",
         "rnodes",
         "turbofil"
     ]

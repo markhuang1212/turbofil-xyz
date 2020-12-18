@@ -1,11 +1,3 @@
-// import { RedisClient } from 'redis'
-// import ClusterGetter from './getters/ClusterGetter'
-import RedisClientShared from './RedisClientShared'
+import ClusterGetter from "./getters/ClusterGetter";
 
-RedisClientShared.hget('clusters:overview', 'arst', (err, str) => {
-    console.log('error')
-    console.log(err)
-    console.log('result:')
-    console.log(str)
-    process.exit(0)
-})
+console.log(ClusterGetter.shared.clusterInfo)
