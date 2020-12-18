@@ -1,9 +1,13 @@
-
 import Env from '../env.json'
 import CollectionAbstract from './CollectionAbstract'
 import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
 
+/**
+ * The schema of the rnodes stored in MongoDB
+ * It contains the fnodes information of rnodes
+ * which is sorted.
+ */
 interface RNode {
     rn_id: string
     runStatus: boolean
@@ -17,18 +21,39 @@ interface RNode {
     }[]
 }
 
+function webPageToRnodesId(text: string) {
+    const rnodesUri = text.match(/rs=http:\/\/.*\/[0-9]+/g) ?? []
+    const rnodesId = rnodesUri.map(val => val.substr(-4))
+    return rnodesId
+}
+
+/**
+ * This handles the data of the clusters apis, including
+ * /clusters/all
+ * /clusters/overview
+ * /clusters/:cluster/rnodes
+ * /clusters/:cluster/fnodes
+ */
 class ClusterGetter extends GetterAbstract {
 
     static shared = new ClusterGetter()
 
+    /**
+     * clusterName => the uri of the web page
+     */
     clusterWebInfo: Map<string, string> = new Map(Object.entries(Env.clustersWeb))
 
+    /**
+     * clusterName => the uri of the rnode/fnode status api
+     */
     clusterRNodeInfo: Map<string, string> = new Map(Object.entries(Env.clustersStatus))
     rnodeCollections: Map<string, CollectionAbstract<RNode>> = new Map()
 
+    /**
+     * clusterName => overview url
+     */
     clusterOverviewsInfo: Map<string, string> = new Map(Object.entries(Env.clustersOverview))
     clusterOverviews: Map<string, Object> = new Map()
-
 
 
     constructor() {
@@ -64,17 +89,46 @@ class ClusterGetter extends GetterAbstract {
         }
     }
 
-    async cacheRNodesForCluster(cluster: string, uri: string) {
-        const collection = this.rnodeCollections.get(cluster)
-        if (collection === undefined) {
-            throw (`Mongo collection for cluster ${cluster} not defined.`)
+    async cacheRNodesForCluster(cluster: string) {
+        console.log(`start caching rnode for cluster ${cluster}`)
+
+        const collectionManaged = this.rnodeCollections.get(cluster)
+        const webpageUri = this.clusterWebInfo.get(cluster)
+        const rnodeUri = this.clusterRNodeInfo.get(cluster)
+
+        if (!collectionManaged || !webpageUri || !rnodeUri) {
+            throw Error(`Error when caching rnode for cluster ${cluster}`)
         }
+
+        const webPageResponse = await fetch(webpageUri)
+        const webPageText = await webPageResponse.text()
+
+        const rnodesId = webPageToRnodesId(webPageText)
+
+        for (let i = 0; i < rnodesId.length; i++) {
+            const rnStatusUri = `${rnodeUri}/rnStatus/${rnodesId[i]}`
+            const fnStatusUri = `${rnodeUri}/fnStatus/${rnodesId[i]}`
+
+            const rnStatusJson = await (await fetch(rnStatusUri)).json()
+            const fnStatusJson = await (await fetch(fnStatusUri)).json()
+
+
+
+        }
+
+        console.log(`caching rnode for cluster ${cluster} success`)
+
     }
 
     async cacheRNodes() {
         console.log('caching rnodes')
-        for (let [clusterName, clusterUri] of this.clusterRNodeInfo) {
-            this.cacheRNodesForCluster(clusterName, clusterUri)
+        for (let [clusterName, _] of this.clusterRNodeInfo) {
+            try {
+                this.cacheRNodesForCluster(clusterName)
+            } catch (e) {
+                console.error(`error when caching cluster ${clusterName}`)
+                console.error(e)
+            }
         }
     }
 

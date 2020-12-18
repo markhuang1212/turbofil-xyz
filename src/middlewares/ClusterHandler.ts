@@ -8,7 +8,7 @@ ClusterHandler.get('/all', (req, res) => {
     res.json({
         code: 200,
         msg: "success",
-        clusters: Array.from(Object.keys(Env.clusters))
+        clusters: Array.from(Object.keys(Env.clustersOverview))
     })
 })
 
