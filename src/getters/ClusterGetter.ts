@@ -21,27 +21,27 @@ class ClusterGetter extends GetterAbstract {
 
     static shared = new ClusterGetter()
 
-    
+    clusterWebInfo: Map<string, string> = new Map(Object.entries(Env.clustersWeb))
 
-    rnodeCollections: Map<string, CollectionAbstract<RNode>>
-    clusterOverviewsInfo: Map<string, string>
-    clusterOverviews: Map<string, Object>
+    clusterRNodeInfo: Map<string, string> = new Map(Object.entries(Env.clustersStatus))
+    rnodeCollections: Map<string, CollectionAbstract<RNode>> = new Map()
+
+    clusterOverviewsInfo: Map<string, string> = new Map(Object.entries(Env.clustersOverview))
+    clusterOverviews: Map<string, Object> = new Map()
+
+
 
     constructor() {
         super()
-        this.clusterOverviewsInfo = new Map(Object.entries(Env.clustersOverview))
-        this.rnodeCollections = new Map()
-        this.clusterOverviews = new Map()
-        this.clusterOverviewsInfo.forEach((val, key) => {
+        this.clusterRNodeInfo.forEach((val, key) => {
             this.rnodeCollections.set(key, CollectionAbstract.makeCollectionAbstract<RNode>('clusters', key))
         })
         this.periodic()
     }
 
-    task(){
+    task() {
         this.cacheOverview()
         this.cacheRNodes()
-        this.cacheFNodes()
     }
 
     async cacheOverviewForCluster(cluster: string, uri: string) {
@@ -51,32 +51,38 @@ class ClusterGetter extends GetterAbstract {
             const responseJson = await response.json()
             this.clusterOverviews.set(cluster, responseJson)
             console.log(`overview for cluster ${cluster} finished.`)
-        } catch(e) {
+        } catch (e) {
             console.error(`error occurred when caching overview for cluster ${cluster}`)
             console.error(e)
         }
     }
 
-    async cacheOverview() {
+    cacheOverview() {
         console.log('caching overviews')
         for (let [clusterName, clusterUri] of this.clusterOverviewsInfo) {
-            await this.cacheOverviewForCluster(clusterName, clusterUri)
+            this.cacheOverviewForCluster(clusterName, clusterUri)
+        }
+    }
+
+    async cacheRNodesForCluster(cluster: string, uri: string) {
+        const collection = this.rnodeCollections.get(cluster)
+        if (collection === undefined) {
+            throw (`Mongo collection for cluster ${cluster} not defined.`)
         }
     }
 
     async cacheRNodes() {
+        console.log('caching rnodes')
+        for (let [clusterName, clusterUri] of this.clusterRNodeInfo) {
+            this.cacheRNodesForCluster(clusterName, clusterUri)
+        }
+    }
+
+    async getRNode() {
 
     }
 
-    async cacheFNodes() {
-
-    }
-
-    async getRNodes() {
-
-    }
-
-    async getFNodes() {
+    async getFNode() {
 
     }
 
