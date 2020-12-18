@@ -4,19 +4,21 @@ import fetch from 'node-fetch'
 import { promisify } from 'util'
 import { MongoClient } from "mongodb";
 import MongoClientShared from "../MongoClientShared";
+import GetterAbstract from "./GetterAbstract";
 
+interface Cluster {
 
-class ClusterGetter {
+}
 
-    static shared = new ClusterGetter(MongoClientShared)
+class ClusterGetter extends GetterAbstract<Cluster> {
 
-    client: MongoClient
+    static shared = new ClusterGetter()
+
     clusterInfo: Map<string, string>
 
-    constructor(client: MongoClient) {
-        this.client = client
+    constructor() {
+        super('clusters')
         this.clusterInfo = Env.clusters
-        
     }
 
     async cacheOverviewForCluster(cluster: string, uri: string) {

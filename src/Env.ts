@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import { fatalError } from './util'
 
 interface EnvObject {
     mongoUri: string
