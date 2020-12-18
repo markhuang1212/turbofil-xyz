@@ -21,17 +21,18 @@ class ClusterGetter extends GetterAbstract {
 
     static shared = new ClusterGetter()
 
-    clusterInfo: Map<string, string>
+    
 
     rnodeCollections: Map<string, CollectionAbstract<RNode>>
+    clusterOverviewsInfo: Map<string, string>
     clusterOverviews: Map<string, Object>
 
     constructor() {
         super()
-        this.clusterInfo = new Map(Object.entries(Env.clusters))
+        this.clusterOverviewsInfo = new Map(Object.entries(Env.clustersOverview))
         this.rnodeCollections = new Map()
         this.clusterOverviews = new Map()
-        this.clusterInfo.forEach((val, key) => {
+        this.clusterOverviewsInfo.forEach((val, key) => {
             this.rnodeCollections.set(key, CollectionAbstract.makeCollectionAbstract<RNode>('clusters', key))
         })
         this.periodic()
@@ -58,7 +59,7 @@ class ClusterGetter extends GetterAbstract {
 
     async cacheOverview() {
         console.log('caching overviews')
-        for (let [clusterName, clusterUri] of this.clusterInfo) {
+        for (let [clusterName, clusterUri] of this.clusterOverviewsInfo) {
             await this.cacheOverviewForCluster(clusterName, clusterUri)
         }
     }
