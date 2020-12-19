@@ -33,25 +33,28 @@ ClusterHandler.get('/overview', (req, res) => {
 })
 
 ClusterHandler.get('/rnodes', async (req, res) => {
-    const cluster = req.query.cluster
-    if (typeof cluster !== 'string') {
+    try {
+
+        const cluster = req.query.cluster
+
+        const result = await ClusterGetter.shared.getRNode(cluster as string)
+
+        if (result === undefined) {
+            res.status(500).end()
+            return
+        }
+
+        const response: Handler.RNodeResponse = {
+            code: 0,
+            data: result
+        }
+
+        res.json(response)
+
+    } catch (e) {
+        console.error(e)
         res.status(500).end()
-        return
     }
-
-    const result = await ClusterGetter.shared.getRNode(cluster as string)
-
-    if (result === undefined) {
-        res.status(500).end()
-        return
-    }
-
-    const response: Handler.RNodeResponse = {
-        code: 0,
-        data: result
-    }
-
-    res.json(response)
 
 })
 
@@ -62,11 +65,7 @@ ClusterHandler.get('/fnodes', (req, res) => {
         const page = parseInt((req.query.page as string) ?? '0')
         const count = parseInt((req.query.count as string) ?? '0')
 
-        // const response: FNodeResponse = {
-        //     code: 1,
-        //     msg: 'success',
 
-        // }
 
     } catch (e) {
         console.error(`error when getting fnodes with request ${req.url}`)

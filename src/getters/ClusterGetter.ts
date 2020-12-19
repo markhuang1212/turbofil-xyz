@@ -3,7 +3,6 @@ import CollectionAbstract from './CollectionAbstract'
 import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
 import { Long } from 'mongodb'
-import { Runnable } from 'mocha'
 import { Getter, Handler } from '../Types'
 
 
@@ -138,9 +137,9 @@ class ClusterGetter extends GetterAbstract {
                 hasStorage: Long.fromNumber(0)
             }
 
-            rnode.totalStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + curr.quotaM.toNumber(), 0))
+            rnode.totalStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + (curr.quotaM as number), 0))
 
-            rnode.hasStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + curr.usedM.toNumber(), 0))
+            rnode.hasStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + (curr.usedM as number), 0))
 
             const mongoCollection = this.rnodeCollections.get(cluster)!.collection
 
@@ -168,7 +167,7 @@ class ClusterGetter extends GetterAbstract {
         if (mongoCollection == undefined)
             return undefined
 
-        const rnodes = await mongoCollection.collection.find({}, { projection: { fnodes: 0 } }).toArray() ?? []
+        const rnodes = await mongoCollection.collection.find({}, { projection: { fnodes: 0, _id: 0 } }).toArray() ?? []
 
         let result: Handler.RNodeResponse['data'] = {
             meta: {
@@ -176,7 +175,7 @@ class ClusterGetter extends GetterAbstract {
                 totalStorage: 0,
                 hasStorage: 0,
                 rnodeNum: rnodes.length,
-                fnodeNum: rnodes.reduce((accu: number, curr: Getter.RNode) => accu + curr.num_of_fnodes.toNumber(), 0),
+                fnodeNum: rnodes.reduce((accu: number, curr: Getter.RNode) => accu + (curr.num_of_fnodes as number), 0),
                 normalRate: 1.0,
             },
             rnodes: rnodes.map(val => {
@@ -190,13 +189,15 @@ class ClusterGetter extends GetterAbstract {
                     backendStatus: val.backendStatus,
                     runStatus: val.runStatus,
                     dead: false,
-                    fnodeNum: val.fnodes.length,
-                    totalStorage: val.totalStorage.toNumber(),
-                    hasStorage: val.hasStorage.toNumber(),
+                    fnodeNum: val.num_of_fnodes as number,
+                    totalStorage: val.totalStorage as number,
+                    hasStorage: val.hasStorage as number,
                     state: true
                 }
             })
         }
+
+        return result
     }
 
     async getFNode() {

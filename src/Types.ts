@@ -11,15 +11,15 @@ declare namespace Getter {
         proc: string
         running: string
 
-        totalStorage: Long // sum of quotaM
-        hasStorage: Long // sum of usedM
+        totalStorage: Long | number // sum of quotaM
+        hasStorage: Long | number // sum of usedM
 
-        num_of_fnodes: Long
+        num_of_fnodes: Long | number
         fnodes: {
             fn_id: string
             fn_status: string
-            usedM: Long
-            quotaM: Long
+            usedM: Long | number
+            quotaM: Long | number
         }[]
     }
 
@@ -47,7 +47,7 @@ declare namespace Getter {
 }
 
 declare namespace Handler {
-    
+
     interface RNodeResponse {
         code: 0,
         data: {
