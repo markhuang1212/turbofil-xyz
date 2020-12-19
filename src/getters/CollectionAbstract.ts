@@ -7,7 +7,7 @@ class CollectionAbstract<T>{
     dbName: string
     collectionName: string
 
-    get collection(): Collection {
+    get collection(): Collection<T> {
         if (this.client.isConnected() == false)
             throw Error('Mongo Client Not Connected.')
         return this.client.db(this.dbName).collection(this.collectionName)

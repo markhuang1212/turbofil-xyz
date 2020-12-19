@@ -1,5 +1,7 @@
 {
     "cSpell.words": [
+        "accu",
+        "fnid",
         "fnode",
         "fnodes",
         "hget",
@@ -7,6 +9,7 @@
         "middlewares",
         "rnode",
         "rnodes",
-        "turbofil"
+        "turbofil",
+        "upsert"
     ]
 }

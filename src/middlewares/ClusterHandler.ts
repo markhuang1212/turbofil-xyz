@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { BooleanLiteral } from "typescript";
 import Env from '../env.json'
 import ClusterGetter from "../getters/ClusterGetter";
 
@@ -32,64 +31,28 @@ ClusterHandler.get('/overview', (req, res) => {
     res.json(overview)
 })
 
-interface RNodeResponse {
-    code: 0,
-    data: {
-        meta: {
-            clusterId: string
-            totalStorage: number
-            hasStorage: number
-            rnodeNum: number
-            fnodeNum: number
-            normalRate: number
-        },
-        rnodes: {
-            rnode: string
-            cluster: string
-            web: string
-            proc: string
-            running: string
-            runStatus: boolean
-            loopStatus: boolean
-            backendStatus: boolean
-            dead: boolean
-            fnodeNum: number
-            totalStorage: number
-            hasStorage: number
-            state: boolean
-        }[]
-    }
-}
-
-ClusterHandler.get('/:clusterName/rnodes', (req, res) => {
-
+ClusterHandler.get('/rnodes', (req, res) => {
+    const cluster = req.query.cluster
 })
 
-interface FNodeResponse {
-    code: 0 | 1,
-    msg: string
-    data: {
-        meta: {
-            clusterId: string
-            rnode: string
-            totalStorage: number
-            hasStorage: number
-            fnodeNum: number
-            state: boolean
-        }
-        fnodes: {
-            fnid: string,
-            rnode: string,
-            cluster: string,
-            fnStatus: string,
-            usedM: string,
-            quotaM: string
-        }[]
+ClusterHandler.get('/fnodes', (req, res) => {
+    try {
+        const cluster = req.query.cluster
+        const rnode = req.query.rnode
+        const page = parseInt((req.query.page as string) ?? '0')
+        const count = parseInt((req.query.count as string) ?? '0')
+
+        // const response: FNodeResponse = {
+        //     code: 1,
+        //     msg: 'success',
+            
+        // }
+
+    } catch (e) {
+        console.error(`error when getting fnodes with request ${req.url}`)
+        console.error(e)
+        res.status(500).end()
     }
-}
-
-ClusterHandler.get('/:clusterName/fnodes', (req, res) => {
-
 })
 
 export default ClusterHandler

@@ -4,32 +4,8 @@ import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
 import { Long } from 'mongodb'
 import { Runnable } from 'mocha'
+import { Getter, Handler } from '../Types'
 
-/**
- * The schema of the rnodes stored in MongoDB
- * It contains the fnodes information of rnodes
- * which is sorted.
- */
-interface RNode {
-    rn_id: string
-    runStatus: boolean
-    loopStatus: boolean
-    backendStatus: boolean
-
-    web: string
-    proc: string
-    running: string
-
-    totalStorage: Long // sum of quotaM
-    hasStorage: Long // sum of usedM
-
-    fnodes: {
-        fn_id: string
-        fn_status: string
-        usedM: string
-        quotaM: string
-    }[]
-}
 
 function webPageToInfo(text: string) {
     const strMatch = text.match(/<b>0.[0-9A-Z]+/g) ?? []
@@ -73,7 +49,7 @@ class ClusterGetter extends GetterAbstract {
      * clusterName => the uri of the rnode/fnode status api
      */
     clusterRNodeInfo: Map<string, string> = new Map(Object.entries(Env.clustersStatus))
-    rnodeCollections: Map<string, CollectionAbstract<RNode>> = new Map()
+    rnodeCollections: Map<string, CollectionAbstract<Getter.RNode>> = new Map()
 
     /**
      * clusterName => overview url
@@ -85,7 +61,7 @@ class ClusterGetter extends GetterAbstract {
     constructor() {
         super()
         this.clusterRNodeInfo.forEach((val, key) => {
-            this.rnodeCollections.set(key, CollectionAbstract.makeCollectionAbstract<RNode>('clusters', key))
+            this.rnodeCollections.set(key, CollectionAbstract.makeCollectionAbstract<Getter.RNode>('clusters', key))
         })
         this.periodic()
     }
@@ -136,10 +112,38 @@ class ClusterGetter extends GetterAbstract {
             const rnStatusUri = `${rnodeUri}/rnStatus/${rnodesId[i]}`
             const fnStatusUri = `${rnodeUri}/fnStatus/${rnodesId[i]}`
 
-            const rnStatusJson = await (await fetch(rnStatusUri)).json()
-            const fnStatusJson = await (await fetch(fnStatusUri)).json()
+            const rnStatusJson: Getter.RNodeStatusResponse = await (await fetch(rnStatusUri)).json()
+            const fnStatusJson: Getter.FNodeStatusResponse = await (await fetch(fnStatusUri)).json()
 
+            // console.log(fnStatusJson)
 
+            let rnode: Getter.RNode = {
+                rn_id: rnodesId[i],
+                runStatus: rnStatusJson.data.RunStatus,
+                loopStatus: rnStatusJson.data.LoopStatus,
+                backendStatus: rnStatusJson.data.BackendStatus,
+                web: rnodesInfo[i].web,
+                proc: rnodesInfo[i].proc,
+                running: rnodesInfo[i].running,
+                fnodes: fnStatusJson.data.map(val => {
+                    return {
+                        fn_id: val.fnid,
+                        fn_status: val.fnStatus,
+                        usedM: Long.fromString(val.usedM == '' ? '0' : val.usedM),
+                        quotaM: Long.fromString(val.quotaM == '' ? '0' : val.quotaM)
+                    }
+                }),
+                totalStorage: Long.fromNumber(0),
+                hasStorage: Long.fromNumber(0)
+            }
+
+            rnode.totalStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + curr.quotaM.toNumber(), 0))
+
+            rnode.hasStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + curr.usedM.toNumber(), 0))
+
+            const mongoCollection = this.rnodeCollections.get(cluster)!.collection
+
+            await mongoCollection.updateOne({ rn_id: rnode.rn_id }, { $set: rnode }, { upsert: true })
 
         }
 
@@ -157,8 +161,18 @@ class ClusterGetter extends GetterAbstract {
         }
     }
 
-    async getRNode() {
+    async getRNode(cluster: string) {
 
+        const mongoCollection = this.rnodeCollections.get(cluster)
+        if (mongoCollection == undefined)
+            return undefined
+
+        // const result: Handler.FNodeResponse['data'] = {
+        //     meta: {
+        //         clusterId: cluster,
+
+        //     }
+        // }
     }
 
     async getFNode() {
