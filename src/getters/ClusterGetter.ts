@@ -2,6 +2,8 @@ import Env from '../env.json'
 import CollectionAbstract from './CollectionAbstract'
 import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
+import { Long } from 'mongodb'
+import { Runnable } from 'mocha'
 
 /**
  * The schema of the rnodes stored in MongoDB
@@ -13,12 +15,36 @@ interface RNode {
     runStatus: boolean
     loopStatus: boolean
     backendStatus: boolean
+
+    web: string
+    proc: string
+    running: string
+
+    totalStorage: Long // sum of quotaM
+    hasStorage: Long // sum of usedM
+
     fnodes: {
         fn_id: string
         fn_status: string
         usedM: string
         quotaM: string
     }[]
+}
+
+function webPageToInfo(text: string) {
+    const strMatch = text.match(/<b>0.[0-9A-Z]+/g) ?? []
+    const strResult = strMatch.map(val => val.substr(3))
+    const result: { web: string, proc: string, running: string }[] = []
+
+    for (let i = 0; i < strResult.length / 3; i++) {
+        result.push({
+            web: strResult[i * 3],
+            proc: strResult[i * 3 + 1],
+            running: strResult[i * 3 + 2]
+        })
+    }
+
+    return result
 }
 
 function webPageToRnodesId(text: string) {
@@ -104,6 +130,7 @@ class ClusterGetter extends GetterAbstract {
         const webPageText = await webPageResponse.text()
 
         const rnodesId = webPageToRnodesId(webPageText)
+        const rnodesInfo = webPageToInfo(webPageText)
 
         for (let i = 0; i < rnodesId.length; i++) {
             const rnStatusUri = `${rnodeUri}/rnStatus/${rnodesId[i]}`
@@ -123,12 +150,10 @@ class ClusterGetter extends GetterAbstract {
     async cacheRNodes() {
         console.log('caching rnodes')
         for (let [clusterName, _] of this.clusterRNodeInfo) {
-            try {
-                this.cacheRNodesForCluster(clusterName)
-            } catch (e) {
+            this.cacheRNodesForCluster(clusterName).catch(e => {
                 console.error(`error when caching cluster ${clusterName}`)
                 console.error(e)
-            }
+            })
         }
     }
 
