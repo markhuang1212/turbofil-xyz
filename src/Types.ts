@@ -14,6 +14,7 @@ declare namespace Getter {
         totalStorage: Long // sum of quotaM
         hasStorage: Long // sum of usedM
 
+        num_of_fnodes: Long
         fnodes: {
             fn_id: string
             fn_status: string

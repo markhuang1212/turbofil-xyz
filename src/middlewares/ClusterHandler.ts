@@ -1,6 +1,7 @@
 import { Router } from "express";
 import Env from '../env.json'
 import ClusterGetter from "../getters/ClusterGetter";
+import { Handler } from "../Types";
 
 const ClusterHandler = Router()
 
@@ -31,8 +32,27 @@ ClusterHandler.get('/overview', (req, res) => {
     res.json(overview)
 })
 
-ClusterHandler.get('/rnodes', (req, res) => {
+ClusterHandler.get('/rnodes', async (req, res) => {
     const cluster = req.query.cluster
+    if (typeof cluster !== 'string') {
+        res.status(500).end()
+        return
+    }
+
+    const result = await ClusterGetter.shared.getRNode(cluster as string)
+
+    if (result === undefined) {
+        res.status(500).end()
+        return
+    }
+
+    const response: Handler.RNodeResponse = {
+        code: 0,
+        data: result
+    }
+
+    res.json(response)
+
 })
 
 ClusterHandler.get('/fnodes', (req, res) => {
@@ -45,7 +65,7 @@ ClusterHandler.get('/fnodes', (req, res) => {
         // const response: FNodeResponse = {
         //     code: 1,
         //     msg: 'success',
-            
+
         // }
 
     } catch (e) {

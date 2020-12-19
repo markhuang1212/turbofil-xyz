@@ -125,6 +125,7 @@ class ClusterGetter extends GetterAbstract {
                 web: rnodesInfo[i].web,
                 proc: rnodesInfo[i].proc,
                 running: rnodesInfo[i].running,
+                num_of_fnodes: Long.fromNumber(fnStatusJson.data.length),
                 fnodes: fnStatusJson.data.map(val => {
                     return {
                         fn_id: val.fnid,
@@ -167,12 +168,35 @@ class ClusterGetter extends GetterAbstract {
         if (mongoCollection == undefined)
             return undefined
 
-        // const result: Handler.FNodeResponse['data'] = {
-        //     meta: {
-        //         clusterId: cluster,
+        const rnodes = await mongoCollection.collection.find({}, { projection: { fnodes: 0 } }).toArray() ?? []
 
-        //     }
-        // }
+        let result: Handler.RNodeResponse['data'] = {
+            meta: {
+                clusterId: cluster,
+                totalStorage: 0,
+                hasStorage: 0,
+                rnodeNum: rnodes.length,
+                fnodeNum: rnodes.reduce((accu: number, curr: Getter.RNode) => accu + curr.num_of_fnodes.toNumber(), 0),
+                normalRate: 1.0,
+            },
+            rnodes: rnodes.map(val => {
+                return {
+                    rnode: val.rn_id,
+                    cluster,
+                    web: val.web,
+                    proc: val.proc,
+                    running: val.running,
+                    loopStatus: val.loopStatus,
+                    backendStatus: val.backendStatus,
+                    runStatus: val.runStatus,
+                    dead: false,
+                    fnodeNum: val.fnodes.length,
+                    totalStorage: val.totalStorage.toNumber(),
+                    hasStorage: val.hasStorage.toNumber(),
+                    state: true
+                }
+            })
+        }
     }
 
     async getFNode() {
