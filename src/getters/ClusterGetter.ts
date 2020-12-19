@@ -200,8 +200,37 @@ class ClusterGetter extends GetterAbstract {
         return result
     }
 
-    async getFNode() {
+    async getFNode(cluster: string, rnode: string, page: number, count: number) {
+        const mongoCollection = this.rnodeCollections.get(cluster)?.collection
+        if (mongoCollection == undefined)
+            return undefined
 
+        const doc = await mongoCollection.findOne({ rn_id: rnode })
+        if (doc == null)
+            return undefined
+
+        const result: Handler.FNodeResponse['data'] = {
+            meta: {
+                clusterId: cluster,
+                rnode,
+                totalStorage: doc.totalStorage as number,
+                hasStorage: doc.hasStorage as number,
+                fnodeNum: doc.num_of_fnodes as number,
+                state: true
+            },
+            fnodes: doc.fnodes.slice((page - 1) * count, page * count).map(val => {
+                return {
+                    fnid: val.fn_id,
+                    rnode,
+                    cluster,
+                    fnStatus: val.fn_status,
+                    usedM: val.usedM.toString(),
+                    quotaM: val.quotaM.toString()
+                }
+            })
+        }
+
+        return result
     }
 
     getOverviewForCluster(cluster: string) {
