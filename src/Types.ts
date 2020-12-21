@@ -44,6 +44,40 @@ declare namespace Getter {
         }
     }
 
+    interface BfcBlocksResponse {
+        Height: number
+        LastBlockDate: string
+        Block: {
+            Version: number
+            Height: number
+            TxCount: number
+            Timestamp: number
+            Producer: string
+            PrevBlockHash: string
+            Hash: string
+            TransactionMap: {
+                [index: string]: {
+                    TransactionID: string
+                    TimeStamp: number
+                    TransactionType: number
+                    TransactionBody: {
+                        address: string
+                        id: string
+                        payload: {
+                            accountFrom: string
+                            accountTo: string
+                            coinNum: number
+                        }
+                        pubkey: string
+                        signature: string
+                        timestamp: number
+                        type: number
+                    }
+                }
+            }
+        }[]
+    }
+
     interface BfcBlock {
         block_height: number
         block_hash: string
@@ -55,23 +89,23 @@ declare namespace Getter {
     }
 
     interface BfcTransaction {
-        Txid: string
-        BlockHash: string
-        Timestamp: number
-        TxType: number
-        TxBody: {
-            Contract: {
-                ID: string
-                Type: string
-                Payload: {
-                    AccountFrom: string
-                    AccountTo: string
-                    CoinNum: number
+        tx_id: string
+        block_hash: string
+        timestamp: number
+        tx_type: number
+        tx_body: {
+            contract: {
+                id: string
+                type: string
+                payload: {
+                    account_from: string
+                    account_to: string
+                    coin_num: number
                 }
-                Address: string
-                Timestamp: number
-                Signature: string
-                Pubkey: string
+                address: string
+                timestamp: number
+                signature: string
+                pub_key: string
             }
         }
     }

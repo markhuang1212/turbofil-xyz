@@ -14,6 +14,8 @@ const start = async () => {
 
     ClusterGetter.shared.initialize()
     ClusterGetter.shared.task()
+    BfcTradeGetter.shared.initialize()
+    BfcTradeGetter.shared.task()
 
     // BfcTradeGetter.
 
