@@ -1,4 +1,4 @@
-import { Long } from "mongodb";
+import { Long, Int32 } from "mongodb";
 
 declare namespace Getter {
     interface RNode {
@@ -11,15 +11,15 @@ declare namespace Getter {
         proc: string
         running: string
 
-        totalStorage: Long | number // sum of quotaM
-        hasStorage: Long | number // sum of usedM
+        totalStorage: number // sum of quotaM
+        hasStorage: number // sum of usedM
 
-        num_of_fnodes: Long | number
+        num_of_fnodes: number
         fnodes: {
             fn_id: string
             fn_status: string
-            usedM: Long | number
-            quotaM: Long | number
+            usedM: number
+            quotaM: number
         }[]
     }
 
@@ -45,7 +45,35 @@ declare namespace Getter {
     }
 
     interface BfcBlock {
+        block_height: number
+        block_hash: string
+        prev_hash: string
+        producer: string
+        timestamp: number
+        tx_count: number
+        tx_ids: string[]
+    }
 
+    interface BfcTransaction {
+        Txid: string
+        BlockHash: string
+        Timestamp: number
+        TxType: number
+        TxBody: {
+            Contract: {
+                ID: string
+                Type: string
+                Payload: {
+                    AccountFrom: string
+                    AccountTo: string
+                    CoinNum: number
+                }
+                Address: string
+                Timestamp: number
+                Signature: string
+                Pubkey: string
+            }
+        }
     }
 
 }

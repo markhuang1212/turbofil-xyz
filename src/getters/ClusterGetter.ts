@@ -130,22 +130,22 @@ class ClusterGetter extends GetterAbstract {
                 web: rnodesInfo[i].web,
                 proc: rnodesInfo[i].proc,
                 running: rnodesInfo[i].running,
-                num_of_fnodes: Long.fromNumber(fnStatusJson.data.length),
+                num_of_fnodes: fnStatusJson.data.length,
                 fnodes: fnStatusJson.data.map(val => {
                     return {
                         fn_id: val.fnid,
                         fn_status: val.fnStatus,
-                        usedM: Long.fromString(val.usedM == '' ? '0' : val.usedM),
-                        quotaM: Long.fromString(val.quotaM == '' ? '0' : val.quotaM)
+                        usedM: val.usedM == '' ? 0 : parseInt(val.usedM),
+                        quotaM: val.quotaM == '' ? 0 : parseInt(val.quotaM)
                     }
                 }),
-                totalStorage: Long.fromNumber(0),
-                hasStorage: Long.fromNumber(0)
+                totalStorage: 0,
+                hasStorage: 0
             }
 
-            rnode.totalStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + (curr.quotaM as number), 0))
+            rnode.totalStorage = rnode.fnodes.reduce((accu, curr) => accu + (curr.quotaM as number), 0)
 
-            rnode.hasStorage = Long.fromNumber(rnode.fnodes.reduce((accu, curr) => accu + (curr.usedM as number), 0))
+            rnode.hasStorage = rnode.fnodes.reduce((accu, curr) => accu + (curr.usedM as number), 0)
 
             const mongoCollection = this.rnodeCollections.get(cluster)!.collection
 
