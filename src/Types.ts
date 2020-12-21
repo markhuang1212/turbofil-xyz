@@ -64,14 +64,12 @@ declare namespace Getter {
                         address: string
                         id: string
                         payload: {
-                            accountFrom: string
-                            accountTo: string
-                            coinNum: number
+                            [index: string]: any
                         }
                         pubkey: string
                         signature: string
                         timestamp: number
-                        type: number
+                        type: string
                     }
                 }
             }
@@ -98,9 +96,7 @@ declare namespace Getter {
                 id: string
                 type: string
                 payload: {
-                    account_from: string
-                    account_to: string
-                    coin_num: number
+                    [index: string]: any
                 }
                 address: string
                 timestamp: number
@@ -228,9 +224,7 @@ declare namespace Handler {
                     ID: string
                     Type: string
                     Payload: {
-                        AccountFrom: string
-                        AccountTo: string
-                        CoinNum: number
+                        [index: string]: string
                     }
                     Address: string
                     Timestamp: number

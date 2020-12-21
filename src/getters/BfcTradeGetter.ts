@@ -3,6 +3,8 @@ import { Getter } from "../Types";
 import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
 import Env from '../env.json'
+import fetch from 'node-fetch'
+import { GetCompletionsAtPositionOptions } from "typescript";
 
 class BfcTradeGetter extends GetterAbstract {
 
@@ -19,8 +21,15 @@ class BfcTradeGetter extends GetterAbstract {
         this.txCollection.collection.createIndex({ tx_id: 1 })
     }
 
-    task() {
-
+    async task() {
+        try {
+            console.log('start getting BFC blocks and transactions')
+            await this.getBlocksAndTransactions()
+            console.log('getting BFC blocks and transactions finished')
+        } catch (e) {
+            console.error('error when getting BFC blocks and transactions')
+            console.error(e)
+        }
     }
 
     async getBlocksAndTransactions() {
@@ -33,10 +42,53 @@ class BfcTradeGetter extends GetterAbstract {
         if (currHeight == hasHeight)
             return
 
-        const blocksResponse =
+        const blocksResponse: Getter.BfcBlocksResponse =
             await (await fetch(`${Env.bfcBlocks}?start=${currHeight + 1}&count=${hasHeight - currHeight}`)).json()
-        
-        
+
+        for (let blockObj of blocksResponse.Block) {
+            const block: Getter.BfcBlock = {
+                block_height: blockObj.Height,
+                block_hash: blockObj.Hash,
+                prev_hash: blockObj.PrevBlockHash,
+                producer: blockObj.Producer,
+                timestamp: blockObj.Timestamp,
+                tx_count: blockObj.TxCount,
+                tx_ids: Object.keys(blockObj.TransactionMap)
+            }
+            const txs: Getter.BfcTransaction[] = Object.values(blockObj.TransactionMap).map(val => {
+                const body = val
+                const tx: Getter.BfcTransaction = {
+                    tx_id: body.TransactionID,
+                    timestamp: body.TimeStamp,
+                    tx_type: body.TransactionType,
+                    block_hash: block.block_hash,
+                    tx_body: {
+                        contract: {
+                            id: body.TransactionBody.id,
+                            address: body.TransactionBody.address,
+                            type: body.TransactionBody.type,
+                            signature: body.TransactionBody.signature,
+                            timestamp: body.TransactionBody.timestamp,
+                            payload: body.TransactionBody.payload,
+                            pub_key: body.TransactionBody.pubkey
+                       }
+                    }
+                }
+                return tx
+            })
+            await this.blockCollection.collection.updateOne({ block_hash: block.block_hash }, { $set: block }, { upsert: true })
+            for (let tx of txs) {
+                await this.txCollection.collection.updateOne({ tx_id: tx.tx_id }, { $set: tx }, { upsert: true })
+            }
+        }
+    }
+
+    async getUploads() {
+
+    }
+
+    async makeLineChartData() {
+
     }
 
     constructor() {
