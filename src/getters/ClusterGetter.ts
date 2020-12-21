@@ -37,6 +37,12 @@ function webPageToRnodesId(text: string) {
  */
 class ClusterGetter extends GetterAbstract {
 
+    initialize() {
+        this.rnodeCollections.forEach((val, key) => {
+            val.collection.createIndex({ rn_id: 1 })
+        })
+    }
+
     static shared = new ClusterGetter()
 
     /**

@@ -44,6 +44,10 @@ declare namespace Getter {
         }
     }
 
+    interface BfcBlock {
+
+    }
+
 }
 
 declare namespace Handler {
@@ -97,6 +101,91 @@ declare namespace Handler {
                 usedM: string,
                 quotaM: string
             }[]
+        }
+    }
+
+    interface BfcBlocksResponse {
+        code: 0
+        msg: string
+        data: {
+            metaData: {
+                totalCount: number
+                page: number
+                count: number
+            }
+            blocks: {
+                BlockHeight: number
+                BlockHash: string
+                Producer: string
+                Timestamp: number
+                TxCount: number
+            }[]
+        }
+    }
+
+    interface BfcBlockResponse {
+        code: 0,
+        msg: string
+        data: {
+            BlockHeight: number
+            BlockHash: string
+            PrevBlockHash: string
+            Producer: string
+            Timestamp: number
+            TxCount: number
+            Txids: string[]
+        }
+    }
+
+    interface BfcTransactionsResponse {
+        code: 0
+        msg: string
+        data: {
+            metaData: {
+                totalCount: number
+                page: number
+                count: number
+            }
+            txs: {
+                Txid: string
+                timestamp: number
+            }[]
+        }
+    }
+
+    interface BfcTransactionResponse {
+        code: 0
+        msg: string
+        data: {
+            Txid: string
+            BlockHash: string
+            Timestamp: number
+            TxType: number
+            TxBody: {
+                Contract: {
+                    ID: string
+                    Type: string
+                    Payload: {
+                        AccountFrom: string
+                        AccountTo: string
+                        CoinNum: number
+                    }
+                    Address: string
+                    Timestamp: number
+                    Signature: string
+                    Pubkey: string
+                }
+            }
+        }
+    }
+
+    interface BfcLineChartDataResponse {
+        code: 0
+        msg: string
+        data: {
+            labels: string[]
+            uploads: number[]
+            rewards: number[]
         }
     }
 }
