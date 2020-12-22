@@ -51,4 +51,55 @@ BfcTradeHandler.get('/block', async (req, res) => {
     }
 })
 
+BfcTradeHandler.get('/transactions', async (req, res) => {
+    try {
+        const page = parseInt(req.query.page as string ?? '0')
+        const count = parseInt(req.query.count as string ?? '0')
+        const sortOrder = req.query.sortorder
+
+        if (sortOrder !== 'desc' && sortOrder !== 'asc')
+            throw Error('Invalid argument: sortorder')
+
+        const data = await BfcTradeGetter.shared.getTxs(page, count, sortOrder)
+
+        const response: Handler.BfcTransactionsResponse = {
+            code: 0,
+            msg: 'success',
+            data
+        }
+
+        res.json(response)
+
+    } catch (e) {
+        console.error(`error when fetching transactions with request ${req.url}`)
+        console.error(e)
+        res.status(500).end()
+    }
+})
+
+BfcTradeHandler.get('/transaction', async (req, res) => {
+    try {
+        const txid = req.query.transid
+        if (typeof txid !== 'string')
+            return
+
+        const data = await BfcTradeGetter.shared.getTx(txid)
+        if (data === undefined)
+            throw Error(`Cannot get transaction with id ${txid}`)
+
+        const response: Handler.BfcTransactionResponse = {
+            code: 0,
+            msg: 'success',
+            data
+        }
+
+        res.json(response)
+
+    } catch (e) {
+        console.error(`error when fetching transaction with request ${req.url}`)
+        console.error(e)
+        res.status(500).end()
+    }
+})
+
 export default BfcTradeHandler

@@ -206,7 +206,7 @@ declare namespace Handler {
             }
             txs: {
                 Txid: string
-                timestamp: number
+                Timestamp: number
             }[]
         }
     }

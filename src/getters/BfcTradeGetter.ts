@@ -124,6 +124,67 @@ class BfcTradeGetter extends GetterAbstract {
         return data
     }
 
+    async getTxs(page: number, count: number, sortOrder: 'desc' | 'asc'): Promise<Handler.BfcTransactionsResponse['data']> {
+        const total_count = await this.txCollection.collection.countDocuments()
+        const txsDoc = await this.txCollection.collection.find({}, {
+            projection: { timestamp: 1, tx_id: 1 }
+        }).sort({
+            timestamp: sortOrder == 'asc' ? 1 : -1
+        }).skip((page - 1) * count).limit(count).toArray()
+
+        return {
+            metaData: {
+                totalCount: total_count,
+                page, count
+            },
+            txs: txsDoc.map(v => {
+                return {
+                    Txid: v.tx_id,
+                    Timestamp: v.timestamp
+                }
+            })
+        }
+    }
+
+    async getTx(tx_id: string) {
+        const txDoc = await this.txCollection.collection.findOne({ tx_id })
+        if (txDoc == null)
+            return
+
+        const data: Handler.BfcTransactionResponse['data'] = {
+            Txid: txDoc.tx_id,
+            BlockHash: txDoc.block_hash,
+            Timestamp: txDoc.timestamp,
+            TxType: txDoc.tx_type,
+            TxBody: {
+                Contract: {
+                    ID: txDoc.tx_body.contract.id,
+                    Type: txDoc.tx_body.contract.type,
+                    Timestamp: txDoc.tx_body.contract.timestamp,
+                    Signature: txDoc.tx_body.contract.signature,
+                    Pubkey: txDoc.tx_body.contract.pub_key,
+                    Address: txDoc.tx_body.contract.address,
+                    Payload: JSON.parse(
+                        JSON.stringify(txDoc.tx_body.contract.payload)
+                            .replace('accountFrom', 'AccountFrom')
+                            .replace('accountTo', 'AccountTo')
+                            .replace('coinNum', 'CoinNum')
+                            .replace('fileid', 'FileId')
+                            .replace('duration', 'Duration')
+                            .replace('fee', 'Fee')
+                            .replace('fileLengthKiB', 'FileLengthKiB')
+                            .replace('storageExp', 'StorageExp')
+                            .replace('field', 'Field')
+                            .replace('cluster', 'Cluster')
+                            .replace('uploader', 'Uploader')
+                    )
+                }
+            }
+        }
+
+        return data
+    }
+
     async cacheUploads() {
 
     }
