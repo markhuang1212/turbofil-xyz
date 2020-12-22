@@ -4,7 +4,6 @@ import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
 import Env from '../env.json'
 import fetch from 'node-fetch'
-import { GetCompletionsAtPositionOptions } from "typescript";
 
 class BfcTradeGetter extends GetterAbstract {
 
@@ -107,6 +106,22 @@ class BfcTradeGetter extends GetterAbstract {
             })
         }
 
+    }
+
+    async getBlock(blockHash: string) {
+        const block = await this.blockCollection.collection.findOne({ block_hash: blockHash })
+        if (block == null)
+            return
+        const data: Handler.BfcBlockResponse['data'] = {
+            BlockHash: block.block_hash,
+            BlockHeight: block.block_height,
+            PrevBlockHash: block.prev_hash,
+            Timestamp: block.timestamp,
+            TxCount: block.tx_count,
+            Txids: block.tx_ids,
+            Producer: block.producer
+        }
+        return data
     }
 
     async cacheUploads() {

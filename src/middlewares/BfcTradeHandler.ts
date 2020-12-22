@@ -28,8 +28,27 @@ BfcTradeHandler.get('/blocks', async (req, res) => {
     }
 })
 
-BfcTradeHandler.get('/block', (req, res) => {
+BfcTradeHandler.get('/block', async (req, res) => {
+    try {
+        const hash = req.query.blockhash
+        if (typeof hash !== 'string')
+            throw ('Invalid parameter blockhash')
 
+        const data = await BfcTradeGetter.shared.getBlock(hash)
+        if (data == undefined)
+            throw (`Cannot get block with blockhash ${hash}`)
+
+        const response: Handler.BfcBlockResponse = {
+            code: 0,
+            msg: 'success',
+            data
+        }
+        res.json(response)
+    } catch (e) {
+        console.error(`error when fetching block with request ${req.url}`)
+        console.error(e)
+        res.status(500).end()
+    }
 })
 
 export default BfcTradeHandler

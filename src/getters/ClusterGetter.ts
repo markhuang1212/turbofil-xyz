@@ -2,7 +2,6 @@ import Env from '../env.json'
 import CollectionAbstract from './CollectionAbstract'
 import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
-import { Long } from 'mongodb'
 import { Getter, Handler } from '../Types'
 
 function webPageToClusterInfo(text: string) {
