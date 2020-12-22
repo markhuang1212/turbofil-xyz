@@ -1,5 +1,5 @@
 import MongoClientShared from "../MongoClientShared";
-import { Getter } from "../Types";
+import { Getter, Handler } from "../Types";
 import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
 import Env from '../env.json'
@@ -24,7 +24,7 @@ class BfcTradeGetter extends GetterAbstract {
     async task() {
         try {
             console.log('start getting BFC blocks and transactions')
-            await this.getBlocksAndTransactions()
+            await this.cacheBlocksAndTransactions()
             console.log('getting BFC blocks and transactions finished')
         } catch (e) {
             console.error('error when getting BFC blocks and transactions')
@@ -32,7 +32,7 @@ class BfcTradeGetter extends GetterAbstract {
         }
     }
 
-    async getBlocksAndTransactions() {
+    async cacheBlocksAndTransactions() {
         const response = await fetch(Env.bfcBlocks)
         const hasHeight = (await response.json()).Height
 
@@ -71,7 +71,7 @@ class BfcTradeGetter extends GetterAbstract {
                             timestamp: body.TransactionBody.timestamp,
                             payload: body.TransactionBody.payload,
                             pub_key: body.TransactionBody.pubkey
-                       }
+                        }
                     }
                 }
                 return tx
@@ -83,9 +83,37 @@ class BfcTradeGetter extends GetterAbstract {
         }
     }
 
-    async getUploads() {
+    async getBlocks(page: number, count: number, sortOrder: 'desc' | 'asc'): Promise<Handler.BfcBlocksResponse['data']> {
+        const num_of_blocks = await this.blockCollection.collection.countDocuments({})
+
+        const blocksDoc = await this.blockCollection.collection.find({}).sort({
+            timestamp: sortOrder == 'asc' ? 1 : -1
+        }).skip((page - 1) * count).limit(count).toArray()
+
+        return {
+            metaData: {
+                count,
+                page,
+                totalCount: num_of_blocks
+            },
+            blocks: blocksDoc.map(doc => {
+                return {
+                    BlockHeight: doc.block_height,
+                    BlockHash: doc.block_hash,
+                    Timestamp: doc.timestamp,
+                    TxCount: doc.tx_count,
+                    Producer: doc.producer
+                }
+            })
+        }
 
     }
+
+    async cacheUploads() {
+
+    }
+
+
 
     async makeLineChartData() {
 

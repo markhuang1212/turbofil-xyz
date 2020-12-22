@@ -5,6 +5,18 @@ import fetch from 'node-fetch'
 import { Long } from 'mongodb'
 import { Getter, Handler } from '../Types'
 
+function webPageToClusterInfo(text: string) {
+    const textEle = text.split('rs=').map(v => 'rs=' + v).splice(1)
+    const result: { rnId: string, web?: string, proc?: string, running?: string }[] = []
+    for (let ele of textEle) {
+        const rnId = (ele.match(/rs=http:\/\/.*\/[0-9]+/g) ?? [''])[0]?.substr(-4)
+        const web = (ele.match(/<b>0.[0-9A-Z]+/g) ?? [''])[0]?.substr(3)
+        const proc = (ele.match(/<b>0.[0-9A-Z]+/g) ?? [''])[1]?.substr(3)
+        const running = (ele.match(/<b>0.[0-9A-Z]+/g) ?? [''])[2]?.substr(3)
+        result.push({ rnId, web, proc, running })
+    }
+    return result
+}
 
 function webPageToInfo(text: string) {
     const strMatch = text.match(/<b>0.[0-9A-Z]+/g) ?? []
@@ -110,12 +122,13 @@ class ClusterGetter extends GetterAbstract {
         const webPageResponse = await fetch(webpageUri)
         const webPageText = await webPageResponse.text()
 
-        const rnodesId = webPageToRnodesId(webPageText)
-        const rnodesInfo = webPageToInfo(webPageText)
+        // const rnodesId = webPageToRnodesId(webPageText)
+        // const rnodesInfo = webPageToInfo(webPageText)
+        const rnodeInfo = webPageToClusterInfo(webPageText)
 
-        for (let i = 0; i < rnodesId.length; i++) {
-            const rnStatusUri = `${rnodeUri}/rnStatus/${rnodesId[i]}`
-            const fnStatusUri = `${rnodeUri}/fnStatus/${rnodesId[i]}`
+        for (let i = 0; i < rnodeInfo.length; i++) {
+            const rnStatusUri = `${rnodeUri}/rnStatus/${rnodeInfo[i].rnId}`
+            const fnStatusUri = `${rnodeUri}/fnStatus/${rnodeInfo[i].rnId}`
 
             const rnStatusJson: Getter.RNodeStatusResponse = await (await fetch(rnStatusUri)).json()
             const fnStatusJson: Getter.FNodeStatusResponse = await (await fetch(fnStatusUri)).json()
@@ -123,13 +136,13 @@ class ClusterGetter extends GetterAbstract {
             // console.log(fnStatusJson)
 
             let rnode: Getter.RNode = {
-                rn_id: rnodesId[i],
+                rn_id: rnodeInfo[i].rnId,
                 runStatus: rnStatusJson.data.RunStatus,
                 loopStatus: rnStatusJson.data.LoopStatus,
                 backendStatus: rnStatusJson.data.BackendStatus,
-                web: rnodesInfo[i].web,
-                proc: rnodesInfo[i].proc,
-                running: rnodesInfo[i].running,
+                web: rnodeInfo[i].web ?? '',
+                proc: rnodeInfo[i].proc ?? '',
+                running: rnodeInfo[i].running ?? '',
                 num_of_fnodes: fnStatusJson.data.length,
                 fnodes: fnStatusJson.data.map(val => {
                     return {

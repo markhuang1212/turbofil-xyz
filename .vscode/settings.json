@@ -12,6 +12,7 @@
         "middlewares",
         "rnode",
         "rnodes",
+        "sortorder",
         "turbofil",
         "upsert"
     ]

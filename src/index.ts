@@ -2,6 +2,7 @@ import express, { Express } from 'express'
 import Env from './env.json'
 import BfcTradeGetter from './getters/BfcTradeGetter'
 import ClusterGetter from './getters/ClusterGetter'
+import BfcTradeHandler from './middlewares/BfcTradeHandler'
 import BgcHandler from './middlewares/BgcHandler'
 import ClusterHandler from './middlewares/ClusterHandler'
 import MongoClientShared from './MongoClientShared'
@@ -24,6 +25,7 @@ const start = async () => {
     app.use('/bgc', BgcHandler)
 
     app.use(['/clusters', '/cluster'], ClusterHandler)
+    app.use('/bfc', BfcTradeHandler)
 
     app.listen(Env.port, () => {
         console.log(`listening at port ${Env.port}`)
