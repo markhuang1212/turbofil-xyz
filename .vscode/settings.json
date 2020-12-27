@@ -4,6 +4,8 @@
         "Txid",
         "Txids",
         "accu",
+        "blockhash",
+        "fileid",
         "fnid",
         "fnode",
         "fnodes",
@@ -13,6 +15,7 @@
         "rnode",
         "rnodes",
         "sortorder",
+        "transid",
         "turbofil",
         "upsert"
     ]

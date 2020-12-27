@@ -106,6 +106,34 @@ declare namespace Getter {
         }
     }
 
+
+    interface BgcBlock {
+        header: {
+            Height: number
+            [key: string]: any
+        }
+        body: {
+            [key: string]: any
+        }
+    }
+
+    interface BgcBlockResponse {
+        code: 0
+        data: {
+            blocks: BgcBlock[]
+        }
+        msg: 'success'
+    }
+
+    interface BgcBlockHeightResponse {
+        code: 0
+        data: {
+            blockHeight: number
+        }
+        msg: 'success'
+    }
+
+
 }
 
 declare namespace Handler {

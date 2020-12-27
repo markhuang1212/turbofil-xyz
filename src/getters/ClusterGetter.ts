@@ -17,28 +17,6 @@ function webPageToClusterInfo(text: string) {
     return result
 }
 
-function webPageToInfo(text: string) {
-    const strMatch = text.match(/<b>0.[0-9A-Z]+/g) ?? []
-    const strResult = strMatch.map(val => val.substr(3))
-    const result: { web: string, proc: string, running: string }[] = []
-
-    for (let i = 0; i < strResult.length / 3; i++) {
-        result.push({
-            web: strResult[i * 3],
-            proc: strResult[i * 3 + 1],
-            running: strResult[i * 3 + 2]
-        })
-    }
-
-    return result
-}
-
-function webPageToRnodesId(text: string) {
-    const rnodesUri = text.match(/rs=http:\/\/.*\/[0-9]+/g) ?? []
-    const rnodesId = rnodesUri.map(val => val.substr(-4))
-    return rnodesId
-}
-
 /**
  * This handles the data of the clusters apis, including
  * /clusters/all
