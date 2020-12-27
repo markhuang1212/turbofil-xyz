@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import Env from '../env.json'
 import CollectionAbstract from "./CollectionAbstract";
 import MongoClientShared from "../MongoClientShared";
-import { Getter } from "../Types";
+import { Getter, Handler } from "../Types";
 import BgcHandler from "../middlewares/BgcHandler";
 
 class BgcGetter extends GetterAbstract {
@@ -33,7 +33,6 @@ class BgcGetter extends GetterAbstract {
         const blockHeightResponse: Getter.BgcBlockHeightResponse
             = await (await fetch(`${Env.bgc}/blockHeight`)).json()
         const blockHeight = blockHeightResponse.data.blockHeight
-        const currHeight = (await this.blocksCollection.collection.find().sort({ 'header.height': -1 }).limit(1).next())?.header.Height ?? 0
 
         for (let page = 1; page < Math.ceil(blockHeight / BUFFER_SIZE) + 1; page++) {
             const reqUrl = `${Env.bgc}/block?page=${page}&count=${BUFFER_SIZE}`
@@ -49,8 +48,15 @@ class BgcGetter extends GetterAbstract {
         console.log('caching BGC blocks complete.')
     }
 
-    async getBlockHeight() {
+    async getBlocks(page: number, count: number) {
+        const blocks = await this.blocksCollection.collection.find({}).sort({ 'header.Height': 1 }).skip((page - 1) * count).limit(count).toArray()
+        return blocks
+    }
 
+    async getBlockHeight() {
+        const height
+            = (await this.blocksCollection.collection.find().sort({ 'header.height': -1 }).limit(1).next())?.header.Height ?? 0
+        return height
     }
 
 }

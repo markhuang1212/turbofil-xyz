@@ -272,6 +272,9 @@ declare namespace Handler {
             rewards: number[]
         }
     }
+
+    type BgcBlockResponse = Getter.BgcBlockResponse
+    type BgcBlockHeightResponse = Getter.BgcBlockHeightResponse
 }
 
 export { Getter, Handler }
