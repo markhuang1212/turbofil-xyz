@@ -55,7 +55,7 @@ class BgcGetter extends GetterAbstract {
 
     async getBlockHeight() {
         const height
-            = (await this.blocksCollection.collection.find().sort({ 'header.height': -1 }).limit(1).next())?.header.Height ?? 0
+            = (await this.blocksCollection.collection.find().sort({ 'header.Height': -1 }).limit(1).next())?.header?.Height ?? 0
         return height
     }
 

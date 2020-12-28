@@ -14,10 +14,10 @@ const start = async () => {
     await MongoClientShared.connect()
     console.log('mongo client connected.')
 
-    // ClusterGetter.shared.initialize()
-    // ClusterGetter.shared.task()
-    // BfcTradeGetter.shared.initialize()
-    // BfcTradeGetter.shared.task()
+    ClusterGetter.shared.initialize()
+    ClusterGetter.shared.task()
+    BfcTradeGetter.shared.initialize()
+    BfcTradeGetter.shared.task()
     BgcGetter.shared.initialize()
     BgcGetter.shared.task()
 

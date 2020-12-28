@@ -189,8 +189,6 @@ class BfcTradeGetter extends GetterAbstract {
 
     }
 
-
-
     async makeLineChartData() {
 
     }
