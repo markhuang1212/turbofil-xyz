@@ -133,6 +133,31 @@ declare namespace Getter {
         msg: 'success'
     }
 
+    interface BfcDbUploadResponse {
+        code: 0,
+        data: {
+            field: string
+            fileid: string
+        }[]
+    }
+
+    interface BfcDbUpload {
+        field: string
+        fileid: string
+        date: Date
+        info?: {
+            [key: string]: any
+        }
+    }
+
+    interface BfcDbFileInfoResponse {
+        code: 0
+        data: {
+            [key: string]: any
+        }
+        msg: 'success'
+    }
+
 
 }
 

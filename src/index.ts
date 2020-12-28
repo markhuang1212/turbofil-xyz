@@ -1,5 +1,6 @@
 import express, { Express } from 'express'
 import Env from './env.json'
+import BfcDbGetter from './getters/BfcDbGetter'
 import BfcTradeGetter from './getters/BfcTradeGetter'
 import BgcGetter from './getters/BgcGetter'
 import ClusterGetter from './getters/ClusterGetter'
@@ -14,12 +15,13 @@ const start = async () => {
     await MongoClientShared.connect()
     console.log('mongo client connected.')
 
-    ClusterGetter.shared.initialize()
-    ClusterGetter.shared.task()
-    BfcTradeGetter.shared.initialize()
-    BfcTradeGetter.shared.task()
-    BgcGetter.shared.initialize()
-    BgcGetter.shared.task()
+    // ClusterGetter.shared.initialize()
+    // ClusterGetter.shared.task()
+    // BfcTradeGetter.shared.initialize()
+    // BfcTradeGetter.shared.task()
+    BfcDbGetter.shared.task()
+    // BgcGetter.shared.initialize()
+    // BgcGetter.shared.task()
 
 
     // BfcTradeGetter.

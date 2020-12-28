@@ -3,6 +3,7 @@
         "Pubkey",
         "Txid",
         "Txids",
+        "YYYYMMDD",
         "accu",
         "blockhash",
         "fileid",

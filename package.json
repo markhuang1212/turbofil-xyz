@@ -17,6 +17,7 @@
     "@types/node-fetch": "^2.5.7",
     "@types/redis": "^2.8.28",
     "chai": "^4.2.0",
+    "dayjs": "^1.9.8",
     "express": "^4.17.1",
     "mocha": "^8.2.1",
     "mongodb": "^3.6.3",
