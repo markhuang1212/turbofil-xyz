@@ -40,7 +40,7 @@ ClusterHandler.get('/rnodes', async (req, res) => {
         const result = await ClusterGetter.shared.getRNode(cluster as string)
 
         if (result === undefined)
-            throw Error()
+            throw Error('no such cluster.')
 
         const response: Handler.RNodeResponse = {
             code: 0,
@@ -50,6 +50,7 @@ ClusterHandler.get('/rnodes', async (req, res) => {
         res.json(response)
 
     } catch (e) {
+        console.error(`request for rnode ${req.url} failed with error.`)
         console.error(e)
         res.status(500).end()
     }
