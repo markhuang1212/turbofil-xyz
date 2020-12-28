@@ -110,6 +110,7 @@ declare namespace Getter {
     interface BgcBlock {
         header: {
             Height: number
+            Hash: string
             [key: string]: any
         }
         body: {
@@ -157,6 +158,29 @@ declare namespace Getter {
         }
         msg: 'success'
     }
+
+    interface TfcBlockResponse {
+        code: 0
+        data: {
+            blocks: {
+                header: {
+                    Height: number
+                    Hash: string
+                    [key: string]: any
+                }
+                body: {
+                    transactions: {
+                        id: string
+                        timestamp: number
+                        [key: string]: any
+                    }[]
+                }
+            }[]
+        }
+    }
+
+    type TfcBlock = TfcBlockResponse['data']['blocks']
+    type TfcTransaction = TfcBlockResponse['data']['blocks'][0]['body']['transactions']
 
 
 }

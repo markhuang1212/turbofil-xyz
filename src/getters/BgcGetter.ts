@@ -40,7 +40,7 @@ class BgcGetter extends GetterAbstract {
             const blocks = blocksResponse.data.blocks
             const bulk = this.blocksCollection.collection.initializeUnorderedBulkOp()
             for (let block of blocks) {
-                bulk.find({ 'header.Height': block.header.Height }).upsert().updateOne({ $set: block })
+                bulk.find({ 'header.Hash': block.header.Hash }).upsert().updateOne({ $set: block })
             }
             await bulk.execute()
         }

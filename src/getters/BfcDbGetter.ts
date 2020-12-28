@@ -80,13 +80,14 @@ class BfcDbGetter extends GetterAbstract {
                     info
                 }
             })
-
         }
         console.log('caching of files info for BFC-db complete.')
     }
+
     async cacheRnTrade() {
 
     }
+    
     async cacheFnTrade() {
 
     }

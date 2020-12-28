@@ -1,11 +1,34 @@
+import MongoClientShared from "../MongoClientShared";
+import { Getter } from "../Types";
+import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
 
 class TfcGetter extends GetterAbstract {
-    task() {
-        throw new Error("Method not implemented.");
+
+    blocksCollection = new CollectionAbstract<Getter.TfcBlock>(MongoClientShared, 'tfc', 'blocks')
+    txCollection = new CollectionAbstract<Getter.TfcTransaction>(MongoClientShared, 'tfc', 'transactions')
+
+    async task() {
+        await this.cacheBlocks()
+        await this.cacheTransactions()
     }
+
     initialize() {
-        throw new Error("Method not implemented.");
+        
     }
-    
+
+    async cacheBlocks() {
+
+    }
+
+    async cacheTransactions() {
+
+    }
+
+    async getBlocks() {
+
+    }
+
 }
+
+export default TfcGetter
