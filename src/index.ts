@@ -4,6 +4,7 @@ import BfcDbGetter from './getters/BfcDbGetter'
 import BfcTradeGetter from './getters/BfcTradeGetter'
 import BgcGetter from './getters/BgcGetter'
 import ClusterGetter from './getters/ClusterGetter'
+import TfcGetter from './getters/TfcGetter'
 import BfcTradeHandler from './middlewares/BfcTradeHandler'
 import BgcHandler from './middlewares/BgcHandler'
 import ClusterHandler from './middlewares/ClusterHandler'
@@ -20,8 +21,9 @@ const start = async () => {
     // BfcTradeGetter.shared.initialize()
     // BfcTradeGetter.shared.task()
     // BfcDbGetter.shared.task()
-    BgcGetter.shared.initialize()
-    BgcGetter.shared.task()
+    // BgcGetter.shared.initialize()
+    // BgcGetter.shared.task()
+    TfcGetter.shared.task()
 
 
     // BfcTradeGetter.

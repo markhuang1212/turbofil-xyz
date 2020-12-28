@@ -1,6 +1,11 @@
 import { Long, Int32 } from "mongodb";
 
 declare namespace Getter {
+
+    interface DBCachedObject {
+        cached_success: boolean
+    }
+
     interface RNode {
         rn_id: string
         runStatus: boolean
@@ -166,12 +171,13 @@ declare namespace Getter {
                 header: {
                     Height: number
                     Hash: string
+                    Timestamp: number
                     [key: string]: any
                 }
                 body: {
                     transactions: {
                         id: string
-                        timestamp: number
+                        timestamp?: number
                         [key: string]: any
                     }[]
                 }
@@ -179,7 +185,15 @@ declare namespace Getter {
         }
     }
 
-    type TfcBlock = TfcBlockResponse['data']['blocks']
+    interface TfcBlockHeightResponse {
+        code: 0
+        data: {
+            blockHeight: number
+        }
+        msg: string
+    }
+
+    type TfcBlock = TfcBlockResponse['data']['blocks'][0]
     type TfcTransaction = TfcBlockResponse['data']['blocks'][0]['body']['transactions']
 
 
