@@ -5,7 +5,9 @@ import GetterAbstract from "./GetterAbstract";
 import Env from '../env.json'
 import fetch from 'node-fetch'
 import dayjs, { Dayjs } from "dayjs";
+
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
+
 dayjs.extend(quarterOfYear)
 
 class BfcTradeGetter extends GetterAbstract {
@@ -223,13 +225,11 @@ class BfcTradeGetter extends GetterAbstract {
         }
 
         const response: Handler.BfcLineChartDataResponse['data'] = {
-            labels: [
-                "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder"
-            ],
+            labels: intervals.map(v => dayjs(v).format('YYYY-MM-DD')),
             uploads: uploads_count,
             rewards: rewards_count
         }
-        
+
         return response
 
 
