@@ -349,6 +349,8 @@ declare namespace Handler {
         }
     }
 
+    type BfcLineChartInterval = 'day' | 'week' | 'month' | 'quarter' | 'year'
+
     type BgcBlockResponse = Getter.BgcBlockResponse
     type BgcBlockHeightResponse = Getter.BgcBlockHeightResponse
 }

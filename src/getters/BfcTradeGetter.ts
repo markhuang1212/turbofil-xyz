@@ -6,9 +6,11 @@ import Env from '../env.json'
 import fetch from 'node-fetch'
 import dayjs, { Dayjs } from "dayjs";
 
+import weekOfYear from 'dayjs/plugin/weekOfYear'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 
 dayjs.extend(quarterOfYear)
+dayjs.extend(weekOfYear)
 
 class BfcTradeGetter extends GetterAbstract {
 
@@ -19,8 +21,12 @@ class BfcTradeGetter extends GetterAbstract {
     txCollection: CollectionAbstract<Getter.BfcTransaction> =
         new CollectionAbstract(MongoClientShared, 'bfc-trade', 'transactions')
 
+    // read-only
     uploadsCollection = new CollectionAbstract<Getter.BfcDbUpload>(MongoClientShared, 'bfc-db', 'uploads')
+    // read-only
     rewardsCollection = new CollectionAbstract<Getter.BfcChainReward>(MongoClientShared, 'bfc-chain', 'uploads')
+
+    cachedLineChartData: Map<string, Handler.BfcLineChartDataResponse['data']> = new Map()
 
     initialize() {
         this.blockCollection.collection.createIndex({ block_hash: 1 })
@@ -37,6 +43,7 @@ class BfcTradeGetter extends GetterAbstract {
             console.error('error when getting BFC blocks and transactions')
             console.error(e)
         }
+        await this.cacheLineChartData()
     }
 
     async cacheBlocksAndTransactions() {
@@ -193,7 +200,9 @@ class BfcTradeGetter extends GetterAbstract {
         return data
     }
 
-    async getLineChartData(interval: dayjs.QUnitType) {
+    async cacheLineChatDataForInterval(_interval: 'day' | 'week' | 'month' | 'quarter' | 'year') {
+        const interval = <any>_interval
+
         const end_of_curr_period = dayjs().endOf(interval)
         const intervals = [
             end_of_curr_period.subtract(7, interval).toDate(),
@@ -224,19 +233,27 @@ class BfcTradeGetter extends GetterAbstract {
             })
         }
 
-        const response: Handler.BfcLineChartDataResponse['data'] = {
+        this.cachedLineChartData.set(interval, {
             labels: intervals.map(v => dayjs(v).format('YYYY-MM-DD')),
             uploads: uploads_count,
             rewards: rewards_count
-        }
-
-        return response
-
+        })
 
     }
 
-    constructor() {
-        super()
+    async cacheLineChartData() {
+        console.log('caching bfc trade line chart data')
+        const intervals = ['day', 'week', 'month', 'quarter', 'year'] as const
+        intervals.forEach(v => this.cacheLineChatDataForInterval(v))
+        console.log('caching bfc trade line chart data complete.')
+    }
+
+    async getLineChartData(interval: Handler.BfcLineChartInterval) {
+        const data = this.cachedLineChartData.get(interval)
+        if (data === undefined)
+            throw Error('No Data')
+        return data
+
     }
 
 }

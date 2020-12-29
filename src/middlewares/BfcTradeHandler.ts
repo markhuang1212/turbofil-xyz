@@ -109,7 +109,7 @@ BfcTradeHandler.get('/getLineChartData', async (req, res) => {
         if (interval !== 'day' && interval !== 'week' && interval !== 'month' && interval !== 'quarter' && interval !== 'year')
             throw Error('invalid argument: interval')
 
-        const data = await BfcTradeGetter.shared.getLineChartData(interval as dayjs.QUnitType)
+        const data = await BfcTradeGetter.shared.getLineChartData(interval)
         const response: Handler.BfcLineChartDataResponse = {
             code: 0,
             msg: 'success',

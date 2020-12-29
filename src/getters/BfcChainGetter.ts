@@ -18,8 +18,9 @@ class BfcChainGetter extends GetterAbstract {
     task() {
         this.cacheRewards()
     }
+    
     initialize() {
-        
+
     }
 
     async cacheRewards() {
