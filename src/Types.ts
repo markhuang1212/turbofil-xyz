@@ -196,6 +196,19 @@ declare namespace Getter {
     type TfcBlock = TfcBlockResponse['data']['blocks'][0]
     type TfcTransaction = TfcBlockResponse['data']['blocks'][0]['body']['transactions']
 
+    interface BfcChainReward {
+        field: string
+        fileid: string
+        date: Date
+    }
+
+    interface BfcChainRewardResponse {
+        Code: 0
+        Data: {
+            field: string
+            fileid: string
+        }[]
+    }
 
 }
 

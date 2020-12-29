@@ -18,12 +18,12 @@ const start = async () => {
 
     // ClusterGetter.shared.initialize()
     // ClusterGetter.shared.task()
-    // BfcTradeGetter.shared.initialize()
-    // BfcTradeGetter.shared.task()
+    BfcTradeGetter.shared.initialize()
+    BfcTradeGetter.shared.task()
     // BfcDbGetter.shared.task()
     // BgcGetter.shared.initialize()
     // BgcGetter.shared.task()
-    TfcGetter.shared.task()
+    // TfcGetter.shared.task()
 
 
     // BfcTradeGetter.

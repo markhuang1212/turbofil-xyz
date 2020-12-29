@@ -4,6 +4,9 @@ import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
 import Env from '../env.json'
 import fetch from 'node-fetch'
+import dayjs, { Dayjs } from "dayjs";
+import quarterOfYear from 'dayjs/plugin/quarterOfYear'
+dayjs.extend(quarterOfYear)
 
 class BfcTradeGetter extends GetterAbstract {
 
@@ -13,6 +16,9 @@ class BfcTradeGetter extends GetterAbstract {
         new CollectionAbstract(MongoClientShared, 'bfc-trade', 'blocks')
     txCollection: CollectionAbstract<Getter.BfcTransaction> =
         new CollectionAbstract(MongoClientShared, 'bfc-trade', 'transactions')
+
+    uploadsCollection = new CollectionAbstract<Getter.BfcDbUpload>(MongoClientShared, 'bfc-db', 'uploads')
+    rewardsCollection = new CollectionAbstract<Getter.BfcChainReward>(MongoClientShared, 'bfc-chain', 'uploads')
 
     initialize() {
         this.blockCollection.collection.createIndex({ block_hash: 1 })
@@ -185,11 +191,47 @@ class BfcTradeGetter extends GetterAbstract {
         return data
     }
 
-    async cacheUploads() {
+    async getLineChartData(interval: dayjs.QUnitType) {
+        const end_of_curr_period = dayjs().endOf(interval)
+        const intervals = [
+            end_of_curr_period.subtract(7, interval).toDate(),
+            end_of_curr_period.subtract(6, interval).toDate(),
+            end_of_curr_period.subtract(5, interval).toDate(),
+            end_of_curr_period.subtract(4, interval).toDate(),
+            end_of_curr_period.subtract(3, interval).toDate(),
+            end_of_curr_period.subtract(2, interval).toDate(),
+            end_of_curr_period.subtract(1, interval).toDate(),
+            end_of_curr_period.toDate()
+        ]
 
-    }
+        let rewards_count: number[] = []
+        let uploads_count: number[] = []
 
-    async makeLineChartData() {
+        for (let i = 0; i < 7; i++) {
+            rewards_count[i] = await this.rewardsCollection.collection.countDocuments({
+                date: {
+                    $lt: intervals[i + 1],
+                    $gte: intervals[i]
+                }
+            })
+            uploads_count[i] = await this.uploadsCollection.collection.countDocuments({
+                date: {
+                    $lt: intervals[i + 1],
+                    $gte: intervals[i]
+                }
+            })
+        }
+
+        const response: Handler.BfcLineChartDataResponse['data'] = {
+            labels: [
+                "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder"
+            ],
+            uploads: uploads_count,
+            rewards: rewards_count
+        }
+        
+        return response
+
 
     }
 

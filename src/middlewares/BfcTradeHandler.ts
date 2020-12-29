@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { Router } from "express";
 import BfcTradeGetter from "../getters/BfcTradeGetter";
 import { Handler } from "../Types";
@@ -97,6 +98,28 @@ BfcTradeHandler.get('/transaction', async (req, res) => {
 
     } catch (e) {
         console.error(`error when fetching transaction with request ${req.url}`)
+        console.error(e)
+        res.status(500).end()
+    }
+})
+
+BfcTradeHandler.get('/getLineChartData', async (req, res) => {
+    try {
+        const interval = req.query.interval
+        if (interval !== 'day' && interval !== 'week' && interval !== 'month' && interval !== 'quarter' && interval !== 'year')
+            throw Error('invalid argument: interval')
+
+        const data = await BfcTradeGetter.shared.getLineChartData(interval as dayjs.QUnitType)
+        const response: Handler.BfcLineChartDataResponse = {
+            code: 0,
+            msg: 'success',
+            data
+        }
+
+        res.json(response)
+
+    } catch (e) {
+        console.error(`error when getting Bfc LineChartData with request ${req.url}`)
         console.error(e)
         res.status(500).end()
     }

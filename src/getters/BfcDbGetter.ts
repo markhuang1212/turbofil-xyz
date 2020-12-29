@@ -24,14 +24,16 @@ class BfcDbGetter extends GetterAbstract {
         this.uploadCollection.collection.createIndex({ date: 1 })
     }
 
-    uploadCollection: CollectionAbstract<Getter.BfcDbUpload>
-        = new CollectionAbstract(MongoClientShared, 'bfc-db', 'uploads')
+    uploadCollection = new CollectionAbstract<Getter.BfcDbUpload>(MongoClientShared, 'bfc-db', 'uploads')
     rnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'rn-trade')
     fnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'fn-trade')
 
     async cacheUploads() {
         console.log('start caching uploads for BFC-db')
-        let day_temp = dayjs(FIRST_DAY, 'YYYYMMDD')
+
+        const most_recent_doc = await this.uploadCollection.collection.find().sort({ date: -1 }).limit(1).next()
+        let day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
+
         const next_day = dayjs().add(1, 'day')
         while (day_temp.isBefore(next_day, 'day')) {
             const dateStr = day_temp.format('YYYYMMDD')
@@ -84,10 +86,14 @@ class BfcDbGetter extends GetterAbstract {
         console.log('caching of files info for BFC-db complete.')
     }
 
+    async cacheRewards() {
+
+    }
+
     async cacheRnTrade() {
 
     }
-    
+
     async cacheFnTrade() {
 
     }
