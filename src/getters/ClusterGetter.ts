@@ -165,6 +165,8 @@ class ClusterGetter extends GetterAbstract {
 
         const rnodes = await mongoCollection.collection.find({}, { projection: { fnodes: 0, _id: 0 } }).toArray() ?? []
 
+        const normalRate = rnodes.filter(v => v.runStatus).length / rnodes.length
+
         let result: Handler.RNodeResponse['data'] = {
             meta: {
                 clusterId: cluster,
@@ -172,7 +174,7 @@ class ClusterGetter extends GetterAbstract {
                 hasStorage: 0,
                 rnodeNum: rnodes.length,
                 fnodeNum: rnodes.reduce((accu: number, curr: Getter.RNode) => accu + (curr.num_of_fnodes as number), 0),
-                normalRate: 1.0,
+                normalRate,
             },
             rnodes: rnodes.map(val => {
                 return {

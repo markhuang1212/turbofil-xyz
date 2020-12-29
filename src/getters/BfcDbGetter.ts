@@ -43,6 +43,7 @@ class BfcDbGetter extends GetterAbstract {
             const countExist = await this.uploadCollection.collection.countDocuments({ date: day_temp.toDate() })
             if (count == countExist) {
                 // console.debug('skip')
+                day_temp = day_temp.add(1, 'day')
                 continue
             }
 
@@ -84,6 +85,25 @@ class BfcDbGetter extends GetterAbstract {
             })
         }
         console.log('caching of files info for BFC-db complete.')
+    }
+
+    async getUploads(page: number, count: number, date: string) {
+        const date_d = dayjs(date, 'YYYYMMDD').toDate()
+        const data = await this.uploadCollection.collection.find({
+            date: date_d
+        }, {
+            projection: {
+                field: 1,
+                fileid: 1
+            }
+        }).skip((page - 1) * count).limit(count).toArray()
+        return data as Pick<Getter.BfcDbUpload, 'field' | 'fileid'>[]
+    }
+
+    async getFileInfo(field: string, afid: string) {
+        const upload = await this.uploadCollection.collection.findOne({ field, fileid: afid })
+        const info = upload?.info
+        return info
     }
 
     async cacheRewards() {

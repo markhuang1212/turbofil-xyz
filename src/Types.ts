@@ -299,6 +299,9 @@ declare namespace Handler {
         }
     }
 
+    type BfcDbUploadResponse = Getter.BfcDbUploadResponse
+    type BfcDbFileInfoResponse = Getter.BfcDbFileInfoResponse
+
     interface BfcTransactionsResponse {
         code: 0
         msg: string
