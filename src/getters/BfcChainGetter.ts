@@ -29,6 +29,10 @@ class BfcChainGetter extends GetterAbstract {
         console.log('caching for BFC-Chain rewards complete.')
     }
 
+    async getRewards(){
+        
+    }
+
 
 }
 

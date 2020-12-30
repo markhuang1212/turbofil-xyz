@@ -24,6 +24,11 @@ BfcDbHandler.get('/uploads', async (req, res) => {
     }
 })
 
+BfcDbHandler.get('/rewards', async (req, res) => {
+    console.log('/bfcDb/rewards not implemented.')
+    res.status(500).end()
+})
+
 BfcDbHandler.get('/fileInfo', async (req, res) => {
     try {
         const field = req.query.field

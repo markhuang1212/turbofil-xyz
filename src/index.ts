@@ -25,6 +25,7 @@ const start = async () => {
     BfcDbGetter.shared.task()
     // BgcGetter.shared.initialize()
     // BgcGetter.shared.task()
+    TfcGetter.shared.initialize()
     TfcGetter.shared.task()
 
 
