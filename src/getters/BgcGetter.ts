@@ -6,6 +6,8 @@ import MongoClientShared from "../MongoClientShared";
 import { Getter, Handler } from "../Types";
 import BgcHandler from "../middlewares/BgcHandler";
 
+const SERVICE_NAME = 'GETTER::BGC'
+
 class BgcGetter extends GetterAbstract {
 
     static shared = new BgcGetter()

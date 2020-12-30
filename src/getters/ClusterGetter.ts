@@ -4,6 +4,8 @@ import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
 import { Getter, Handler } from '../Types'
 
+const SERVICE_NAME = 'GETTER::CLUSTER'
+
 function webPageToClusterInfo(text: string) {
     const textEle = text.split('rs=').map(v => 'rs=' + v).splice(1)
     const result: { rnId: string, web?: string, proc?: string, running?: string }[] = []

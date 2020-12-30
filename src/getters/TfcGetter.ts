@@ -6,6 +6,7 @@ import Env from '../env.json'
 import fetch from 'node-fetch'
 
 const BUFFER_SIZE = 64
+const SERVICE_NAME = 'GETTER::TFC'
 
 class TfcGetter extends GetterAbstract {
 

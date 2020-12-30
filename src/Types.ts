@@ -373,6 +373,9 @@ declare namespace Handler {
 
     type BgcBlockResponse = Getter.BgcBlockResponse
     type BgcBlockHeightResponse = Getter.BgcBlockHeightResponse
+
+    type TfcBlockResponse = Getter.TfcBlockResponse
+    type TfcBlockHeightResponse = Getter.TfcBlockHeightResponse
 }
 
 export { Getter, Handler }

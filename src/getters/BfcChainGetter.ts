@@ -66,8 +66,17 @@ class BfcChainGetter extends GetterAbstract {
         console.log('caching for BFC-Chain rewards complete.')
     }
 
-    async getRewards(page: number, count: number) {
-
+    async getRewards(page: number, count: number, date: string) {
+        const date_d = dayjs(date).toDate()
+        const data = await this.rewardCollection.collection.find({
+            date: date_d
+        }, {
+            projection: {
+                field: 1,
+                fileid: 1
+            }
+        }).sort({ fileid: 1 }).skip((page - 1) * count).limit(count).toArray()
+        return data
     }
 
 

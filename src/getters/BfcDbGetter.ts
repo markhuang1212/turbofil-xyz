@@ -21,6 +21,7 @@ class BfcDbGetter extends GetterAbstract {
 
     initialize() {
         this.uploadCollection.collection.createIndex({ field: 1, fileid: 1 })
+        this.uploadCollection.collection.createIndex({ fileid: 1 })
         this.uploadCollection.collection.createIndex({ date: 1 })
     }
 
@@ -96,7 +97,7 @@ class BfcDbGetter extends GetterAbstract {
                 field: 1,
                 fileid: 1
             }
-        }).skip((page - 1) * count).limit(count).toArray()
+        }).sort({ fileid: 1 }).skip((page - 1) * count).limit(count).toArray()
         return data as Pick<Getter.BfcDbUpload, 'field' | 'fileid'>[]
     }
 
