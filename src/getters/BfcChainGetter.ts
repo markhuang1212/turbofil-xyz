@@ -67,7 +67,7 @@ class BfcChainGetter extends GetterAbstract {
     }
 
     async getRewards(page: number, count: number, date: string) {
-        const date_d = dayjs(date).toDate()
+        const date_d = dayjs(date, 'YYYYMMDD').toDate()
         const data = await this.rewardCollection.collection.find({
             date: date_d
         }, {
@@ -79,6 +79,10 @@ class BfcChainGetter extends GetterAbstract {
         return data
     }
 
+    async getRewardsCount(date: string) {
+        const data_d = dayjs(date, 'YYYYMMDD').toDate()
+        return this.rewardCollection.collection.countDocuments({ date: data_d })
+    }
 
 }
 

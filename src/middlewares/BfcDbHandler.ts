@@ -12,6 +12,8 @@ BfcDbHandler.get('/uploads', async (req, res) => {
         if (typeof date !== 'string')
             throw Error('Invalid argument: date')
         const data = await BfcDbGetter.shared.getUploads(page, count, date)
+        const total_count = await BfcDbGetter.shared.getUploadsCount(date)
+        res.setHeader('X-Total-Count', total_count)
         const response: Handler.BfcDbUploadResponse = {
             code: 0,
             data

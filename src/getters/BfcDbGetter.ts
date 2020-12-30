@@ -101,6 +101,11 @@ class BfcDbGetter extends GetterAbstract {
         return data as Pick<Getter.BfcDbUpload, 'field' | 'fileid'>[]
     }
 
+    async getUploadsCount(date: string) {
+        const date_d = dayjs(date, 'YYYYMMDD').toDate()
+        return this.uploadCollection.collection.countDocuments({ date: date_d })
+    }
+
     async getFileInfo(field: string, afid: string) {
         const upload = await this.uploadCollection.collection.findOne({ field, fileid: afid })
         const info = upload?.info
