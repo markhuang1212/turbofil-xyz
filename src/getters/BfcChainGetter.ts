@@ -16,13 +16,13 @@ class BfcChainGetter extends GetterAbstract {
     // rnTradeCollection= new CollectionAbstract(MongoClientShared, 'bfc-db', 'rn-trade')
     // fnTradeCollection= new CollectionAbstract(MongoClientShared, 'bfc-db', 'fn-trade')
 
-    task() {
-        this.cacheRewards()
+    async task() {
+        await this.cacheRewards()
     }
 
-    initialize() {
-        this.rewardCollection.collection.createIndex({ field: 1, fileid: 1 })
-        this.rewardCollection.collection.createIndex({ date: 1 })
+    async initialize() {
+        // await this.rewardCollection.collection.createIndex({ field: 1, fileid: 1 })
+        await this.rewardCollection.collection.createIndex({ date: 1 })
     }
 
     async cacheRewards() {
@@ -34,7 +34,7 @@ class BfcChainGetter extends GetterAbstract {
         const next_day = dayjs().add(1, 'day')
         while (day_temp.isBefore(next_day, 'day')) {
             const dateStr = day_temp.format('YYYYMMDD')
-            const countResponse = await fetch(`${Env.bfcDb}/uploads?page=1&count=1&date=${dateStr}`)
+            const countResponse = await fetch(`${Env.bfcChain}/rewards?page=1&count=1&date=${dateStr}`)
             const count = parseInt(countResponse.headers.get('X-Total-Count') ?? '0')
 
             const countExist = await this.rewardCollection.collection.countDocuments({ date: day_temp.toDate() })
@@ -54,7 +54,7 @@ class BfcChainGetter extends GetterAbstract {
                     fileid: blockResponse.fileid,
                     date: day_temp.toDate()
                 }
-                bulk.find({ fileid: blockResponse.fileid, field: blockResponse.field }).upsert().update({
+                bulk.find({ fileid: upload.fileid, field: upload.field, date: upload.date }).upsert().update({
                     $set: upload
                 })
             }
