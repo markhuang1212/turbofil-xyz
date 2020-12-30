@@ -155,6 +155,7 @@ class ClusterGetter extends GetterAbstract {
                 console.error(e)
             })
         }
+        console.log('caching rnodes complete.')
     }
 
     async getRNode(cluster: string) {

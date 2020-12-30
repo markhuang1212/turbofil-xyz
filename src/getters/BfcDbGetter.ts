@@ -25,8 +25,8 @@ class BfcDbGetter extends GetterAbstract {
     }
 
     uploadCollection = new CollectionAbstract<Getter.BfcDbUpload>(MongoClientShared, 'bfc-db', 'uploads')
-    rnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'rn-trade')
-    fnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'fn-trade')
+    // rnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'rn-trade')
+    // fnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'fn-trade')
 
     async cacheUploads() {
         console.log('start caching uploads for BFC-db')

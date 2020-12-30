@@ -1,5 +1,6 @@
 import express, { Express } from 'express'
 import Env from './env.json'
+import BfcChainGetter from './getters/BfcChainGetter'
 import BfcDbGetter from './getters/BfcDbGetter'
 import BfcTradeGetter from './getters/BfcTradeGetter'
 import BgcGetter from './getters/BgcGetter'
@@ -19,14 +20,16 @@ const start = async () => {
 
     // ClusterGetter.shared.initialize()
     // ClusterGetter.shared.task()
-    BfcTradeGetter.shared.initialize()
-    BfcTradeGetter.shared.task()
-    BfcDbGetter.shared.initialize()
-    BfcDbGetter.shared.task()
+    // BfcTradeGetter.shared.initialize()
+    // BfcTradeGetter.shared.task()
+    // BfcDbGetter.shared.initialize()
+    // BfcDbGetter.shared.task()
+    BfcChainGetter.shared.initialize()
+    BfcChainGetter.shared.task()
     // BgcGetter.shared.initialize()
     // BgcGetter.shared.task()
-    TfcGetter.shared.initialize()
-    TfcGetter.shared.task()
+    // TfcGetter.shared.initialize()
+    // TfcGetter.shared.task()
 
 
     // BfcTradeGetter.

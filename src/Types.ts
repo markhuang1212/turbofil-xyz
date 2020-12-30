@@ -164,6 +164,21 @@ declare namespace Getter {
         msg: 'success'
     }
 
+    interface BfcChainRewardResponse {
+        Code: 0
+        Data: {
+            field: string
+            fileid: string
+        }[]
+        Msg: string
+    }
+
+    interface BfcChainReward {
+        field: string
+        fileid: string
+        date: Date
+    }
+
     interface TfcBlockResponse {
         code: 0
         data: {
@@ -301,6 +316,8 @@ declare namespace Handler {
 
     type BfcDbUploadResponse = Getter.BfcDbUploadResponse
     type BfcDbFileInfoResponse = Getter.BfcDbFileInfoResponse
+
+    type BfcChainRewardResponse = Getter.BfcChainRewardResponse
 
     interface BfcTransactionsResponse {
         code: 0

@@ -2,7 +2,7 @@ import { Router } from "express";
 
 const BfcChainHandler = Router()
 
-BfcChainHandler.get('/rewards', (req,res)=>{
+BfcChainHandler.get('/rewards', (req, res) => {
 
 })
 

@@ -6,11 +6,9 @@ import Env from '../env.json'
 import fetch from 'node-fetch'
 import dayjs, { Dayjs } from "dayjs";
 
-import weekOfYear from 'dayjs/plugin/weekOfYear'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 
 dayjs.extend(quarterOfYear)
-dayjs.extend(weekOfYear)
 
 class BfcTradeGetter extends GetterAbstract {
 
@@ -24,7 +22,7 @@ class BfcTradeGetter extends GetterAbstract {
     // read-only
     uploadsCollection = new CollectionAbstract<Getter.BfcDbUpload>(MongoClientShared, 'bfc-db', 'uploads')
     // read-only
-    rewardsCollection = new CollectionAbstract<Getter.BfcChainReward>(MongoClientShared, 'bfc-chain', 'uploads')
+    rewardsCollection = new CollectionAbstract<Getter.BfcChainReward>(MongoClientShared, 'bfc-chain', 'rewards')
 
     initialize() {
         this.blockCollection.collection.createIndex({ block_hash: 1 })
