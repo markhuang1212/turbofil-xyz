@@ -13,7 +13,7 @@ ClusterHandler.get('/', async (req, res) => {
             msg: 'success',
             data
         }
-        res.json(data)
+        res.json(response)
     } catch (e) {
         console.error(`request for /clusters failed with error.`)
         console.error(e)
