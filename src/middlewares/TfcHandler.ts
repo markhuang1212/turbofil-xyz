@@ -36,6 +36,7 @@ TfcHandler.get('/transactions', async (req, res) => {
                 transactions: txs
             }
         }
+        res.json(response)
     } catch (e) {
         console.error(`error when getting TFC transactions with request ${req.url}`)
         console.error(e)
