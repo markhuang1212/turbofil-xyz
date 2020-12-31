@@ -66,15 +66,10 @@ declare namespace Getter {
                     TimeStamp: number
                     TransactionType: number
                     TransactionBody: {
-                        address: string
-                        id: string
-                        payload: {
+                        [key: string]: any
+                        payload?: {
                             [index: string]: any
                         }
-                        pubkey: string
-                        signature: string
-                        timestamp: number
-                        type: string
                     }
                 }
             }
@@ -98,15 +93,10 @@ declare namespace Getter {
         tx_type: number
         tx_body: {
             contract: {
-                id: string
-                type: string
-                payload: {
+                [key: string]: any
+                payload?: {
                     [index: string]: any
                 }
-                address: string
-                timestamp: number
-                signature: string
-                pub_key: string
             }
         }
     }
@@ -367,15 +357,10 @@ declare namespace Handler {
             TxType: number
             TxBody: {
                 Contract: {
-                    ID: string
-                    Type: string
-                    Payload: {
+                    [key: string]: any
+                    Payload?: {
                         [index: string]: string
                     }
-                    Address: string
-                    Timestamp: number
-                    Signature: string
-                    Pubkey: string
                 }
             }
         }

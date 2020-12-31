@@ -51,7 +51,15 @@ class BgcGetter extends GetterAbstract {
     }
 
     async getBlocks(page: number, count: number) {
-        const blocks = await this.blocksCollection.collection.find({}).sort({ 'header.Height': 1 }).skip((page - 1) * count).limit(count).toArray()
+        // const blocks = await this.blocksCollection.collection.find().sort({ 'header.Height': -1 }).skip((page - 1) * count).limit(count).toArray()
+        // return blocks
+        const blockHeight = await this.getBlockHeight()
+        const blocks = await this.blocksCollection.collection.find({
+            'header.Height': {
+                $gt: blockHeight - page * count,
+                $lte: blockHeight - (page - 1) * count
+            }
+        }).sort({ 'header.Height': -1 }).toArray()
         return blocks
     }
 

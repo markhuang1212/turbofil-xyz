@@ -73,13 +73,7 @@ class BfcTradeGetter extends GetterAbstract {
                     block_hash: block.block_hash,
                     tx_body: {
                         contract: {
-                            id: body.TransactionBody.id,
-                            address: body.TransactionBody.address,
-                            type: body.TransactionBody.type,
-                            signature: body.TransactionBody.signature,
-                            timestamp: body.TransactionBody.timestamp,
-                            payload: body.TransactionBody.payload,
-                            pub_key: body.TransactionBody.pubkey
+                            ...body.TransactionBody
                         }
                     }
                 }
@@ -174,7 +168,7 @@ class BfcTradeGetter extends GetterAbstract {
                     Signature: txDoc.tx_body.contract.signature,
                     Pubkey: txDoc.tx_body.contract.pub_key,
                     Address: txDoc.tx_body.contract.address,
-                    Payload: JSON.parse(
+                    Payload: txDoc.tx_body.contract.payload ? JSON.parse(
                         JSON.stringify(txDoc.tx_body.contract.payload)
                             .replace('accountFrom', 'AccountFrom')
                             .replace('accountTo', 'AccountTo')
@@ -187,7 +181,7 @@ class BfcTradeGetter extends GetterAbstract {
                             .replace('field', 'Field')
                             .replace('cluster', 'Cluster')
                             .replace('uploader', 'Uploader')
-                    )
+                    ) : {}
                 }
             }
         }
