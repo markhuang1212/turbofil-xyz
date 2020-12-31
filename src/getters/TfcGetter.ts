@@ -69,13 +69,13 @@ class TfcGetter extends GetterAbstract {
     async getBlocks(page: number, count: number) {
 
         const blocks
-            = await this.blocksCollection.collection.find().sort({ 'body.Height': -1 }).skip((page - 1) * count).limit(count).toArray()
+            = await this.blocksCollection.collection.find().sort({ 'header.Height': -1 }).skip((page - 1) * count).limit(count).toArray()
         return blocks
     }
 
     async getBlockHeight() {
         const height
-            = (await this.blocksCollection.collection.find().sort({ 'body.Height': -1 }).limit(1).next())?.header.Height ?? 0
+            = (await this.blocksCollection.collection.find().sort({ 'header.Height': -1 }).limit(1).next())?.header.Height ?? 0
         return height
     }
 

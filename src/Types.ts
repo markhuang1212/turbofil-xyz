@@ -385,6 +385,14 @@ declare namespace Handler {
     type TfcBlockHeightResponse = Getter.TfcBlockHeightResponse
 
     type ClusterListResponse = Getter.ClusterListResponse
+
+    interface TfcTransactionResponse {
+        code: 0,
+        msg: 'success',
+        data: {
+            transactions: Getter.TfcTransaction[]
+        }
+    }
 }
 
 export { Getter, Handler }

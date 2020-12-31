@@ -25,7 +25,22 @@ TfcHandler.get('/blocks', async (req, res) => {
 })
 
 TfcHandler.get('/transactions', async (req, res) => {
-    
+    try {
+        const page = parseInt(req.query.page as string)
+        const count = parseInt(req.query.count as string)
+        const txs = await TfcGetter.shared.getTxs(page, count)
+        const response: Handler.TfcTransactionResponse = {
+            code: 0,
+            msg: 'success',
+            data: {
+                transactions: txs
+            }
+        }
+    } catch (e) {
+        console.error(`error when getting TFC transactions with request ${req.url}`)
+        console.error(e)
+        res.status(500).end()
+    }
 })
 
 TfcHandler.get('/blockHeight', async (req, res) => {
