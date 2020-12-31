@@ -222,8 +222,9 @@ class BfcTradeGetter extends GetterAbstract {
             })
         }
 
+        intervals.shift()
         return {
-            labels: intervals.splice(0, 1).map(v => dayjs(v).format('YYYY-MM-DD')),
+            labels: intervals.map(v => dayjs(v).format('YYYY-MM-DD')),
             uploads: uploads_count,
             rewards: rewards_count
         } as Handler.BfcLineChartDataResponse['data']
