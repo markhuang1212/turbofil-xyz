@@ -238,6 +238,35 @@ class ClusterGetter extends GetterAbstract {
         return this.clusterOverviews.get(cluster)
     }
 
+    async getClusterList() {
+        const clusterNum = this.rnodeCollections.size
+        let minerNum = 0
+        let poolNum = 0
+        const clustersData: Getter.ClusterListResponse['data']['clusters'] = []
+        for (let [clusterId, dbCollection] of this.rnodeCollections.entries()) {
+            const rnodes = await dbCollection.collection.find({}, { projection: { fnodes: 0 } }).toArray()
+            minerNum += rnodes.reduce((accu: number, v) => accu + v.num_of_fnodes, 0)
+            poolNum += rnodes.length
+            clustersData.push({
+                clusterId,
+                rnodeNum: rnodes.length,
+                fnodeNum: rnodes.reduce((accu: number, v: Getter.RNode) => accu + v.num_of_fnodes, 0),
+                hasStorage: rnodes.reduce((accu: number, v: Getter.RNode) => accu + v.hasStorage, 0),
+                totalStorage: rnodes.reduce((accu: number, v: Getter.RNode) => accu + v.totalStorage, 0),
+                normalRate: rnodes.filter(v => v.runStatus).length / rnodes.length ?? 0
+            })
+        }
+        const clusterList: Getter.ClusterListResponse['data'] = {
+            meta: {
+                poolNum, minerNum, clusterNum,
+                totalStorage: clustersData.reduce((accu, v) => accu + v.totalStorage, 0),
+                hasStorage: clustersData.reduce((accu, v) => accu + v.hasStorage, 0)
+            },
+            clusters: clustersData
+        }
+        return clusterList
+    }
+
 }
 
 export default ClusterGetter

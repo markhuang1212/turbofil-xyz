@@ -225,6 +225,28 @@ declare namespace Getter {
         }[]
     }
 
+    interface ClusterListResponse {
+        code: 0
+        msg: 'success'
+        data: {
+            meta: {
+                clusterNum: number
+                poolNum: number
+                minerNum: number
+                totalStorage: number
+                hasStorage: number
+            }
+            clusters: {
+                clusterId: string
+                totalStorage: number
+                hasStorage: number
+                rnodeNum: number
+                fnodeNum: number
+                normalRate: number
+            }[]
+        }
+    }
+
 }
 
 declare namespace Handler {
@@ -376,6 +398,8 @@ declare namespace Handler {
 
     type TfcBlockResponse = Getter.TfcBlockResponse
     type TfcBlockHeightResponse = Getter.TfcBlockHeightResponse
+
+    type ClusterListResponse = Getter.ClusterListResponse
 }
 
 export { Getter, Handler }

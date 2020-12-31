@@ -5,6 +5,22 @@ import { Handler } from "../Types";
 
 const ClusterHandler = Router()
 
+ClusterHandler.get('/', async (req, res) => {
+    try {
+        const data = await ClusterGetter.shared.getClusterList()
+        const response: Handler.ClusterListResponse = {
+            code: 0,
+            msg: 'success',
+            data
+        }
+        res.json(data)
+    } catch (e) {
+        console.error(`request for /clusters failed with error.`)
+        console.error(e)
+        res.status(500).end()
+    }
+})
+
 ClusterHandler.get('/all', (req, res) => {
     res.json({
         code: 200,

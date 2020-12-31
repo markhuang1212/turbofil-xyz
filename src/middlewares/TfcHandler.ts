@@ -9,10 +9,7 @@ TfcHandler.get('/blocks', async (req, res) => {
     try {
         const page = parseInt(req.query.page as string)
         const count = parseInt(req.query.count as string)
-        const sortOrder = req.query.sortOrder
-        if (sortOrder !== 'desc' && sortOrder !== 'asc')
-            throw Error('Invalid argument: sortOrder')
-        const blocks = await TfcGetter.shared.getBlocks(page, count, sortOrder)
+        const blocks = await TfcGetter.shared.getBlocks(page, count)
         const response: Handler.TfcBlockResponse = {
             code: 0,
             data: {

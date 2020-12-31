@@ -66,12 +66,10 @@ class TfcGetter extends GetterAbstract {
         console.log(`caching TFC blocks completed.`)
     }
 
-    async getBlocks(page: number, count: number, sortOrder: 'desc' | 'asc') {
-
-        const SORT_BY = sortOrder == 'desc' ? -1 : 1
+    async getBlocks(page: number, count: number) {
 
         const blocks
-            = await this.blocksCollection.collection.find().sort({ 'body.Height': SORT_BY }).skip((page - 1) * count).limit(count).toArray()
+            = await this.blocksCollection.collection.find().sort({ 'body.Height': -1 }).skip((page - 1) * count).limit(count).toArray()
         return blocks
     }
 
@@ -81,10 +79,9 @@ class TfcGetter extends GetterAbstract {
         return height
     }
 
-    async getTxs(page: number, count: number, sortOrder: 'desc' | 'asc') {
-        const SORT_BY = sortOrder == 'desc' ? -1 : 1
+    async getTxs(page: number, count: number) {
         const txs =
-            await this.txCollection.collection.find().sort({ timestamp: SORT_BY }).skip((page - 1) * count).limit(count).toArray()
+            await this.txCollection.collection.find().sort({ timestamp: -1 }).skip((page - 1) * count).limit(count).toArray()
         return txs
     }
 
