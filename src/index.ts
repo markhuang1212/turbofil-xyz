@@ -13,6 +13,7 @@ import BgcHandler from './middlewares/BgcHandler'
 import ClusterHandler from './middlewares/ClusterHandler'
 import TfcHandler from './middlewares/TfcHandler'
 import MongoClientShared from './MongoClientShared'
+import cors from 'cors'
 
 let app!: Express
 
@@ -34,6 +35,8 @@ const start = async () => {
     TfcGetter.shared.task()
 
     app = express()
+
+    app.use(cors())
 
     app.use('/bgc', BgcHandler)
 
