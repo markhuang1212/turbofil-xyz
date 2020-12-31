@@ -24,6 +24,10 @@ TfcHandler.get('/blocks', async (req, res) => {
     }
 })
 
+TfcHandler.get('/transactions', async (req, res) => {
+    
+})
+
 TfcHandler.get('/blockHeight', async (req, res) => {
     try {
         const blockHeight = await TfcGetter.shared.getBlockHeight()
