@@ -14,6 +14,8 @@ import ClusterHandler from './middlewares/ClusterHandler'
 import TfcHandler from './middlewares/TfcHandler'
 import MongoClientShared from './MongoClientShared'
 import cors from 'cors'
+import ErcGetter from './getters/ErcGetter'
+import ErcHandler from './middlewares/ErcHandler'
 
 let app!: Express
 
@@ -33,6 +35,8 @@ const start = async () => {
     BgcGetter.shared.task()
     TfcGetter.shared.initialize()
     TfcGetter.shared.task()
+    ErcGetter.shared.initialize()
+    ErcGetter.shared.task()
 
     app = express()
 
@@ -45,6 +49,7 @@ const start = async () => {
     app.use('/bfcDb', BfcDbHandler)
     app.use('/bfcChain', BfcChainHandler)
     app.use('/tfc', TfcHandler)
+    app.use('/erc', ErcHandler)
 
     app.listen(Env.port, () => {
         console.log(`listening at port ${Env.port}`)

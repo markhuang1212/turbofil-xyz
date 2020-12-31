@@ -6,6 +6,7 @@
         "YYYYMMDD",
         "accu",
         "blockhash",
+        "blockinfo",
         "fileid",
         "fnid",
         "fnode",

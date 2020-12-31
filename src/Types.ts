@@ -237,6 +237,64 @@ declare namespace Getter {
         }
     }
 
+    interface ErcBlocksResponse {
+        code: number
+        msg: string
+        data: {
+            metadata: {
+                totalCount: number
+                page: number
+                count: number
+            }
+            blocks: Getter.ErcBlock[]
+        }
+    }
+
+    interface ErcBlockInfoResponse {
+        code: number
+        msg: string
+        data: {
+            block: Getter.ErcBlock
+        }
+    }
+
+    interface ErcTxsResponse {
+        code: number
+        msg: string
+        data: {
+            metadata: {
+                totalCount: number
+                count: number
+                page: number
+            }
+            txs: Getter.ErcTransaction[]
+        }
+    }
+
+    interface ErcTxResponse {
+        code: number
+        msg: string
+        data: {
+            tx: Getter.ErcTransaction
+        }
+    }
+
+    interface ErcBlock {
+        hash: string
+        height: number
+        parentHash: string
+        timestamp: number
+        transactions: string[]
+        [key: string]: any
+    }
+
+    interface ErcTransaction {
+        hash: string
+        blockHash: string
+        blockHeight: string
+        [key: string]: string
+    }
+
 }
 
 declare namespace Handler {
@@ -393,6 +451,11 @@ declare namespace Handler {
             transactions: Getter.TfcTransaction[]
         }
     }
+
+    type ErcBlocksResponse = Getter.ErcBlocksResponse
+    type ErcBlockInfoResponse = Getter.ErcBlockInfoResponse
+    type ErcTxsResponse = Getter.ErcTxsResponse
+    type ErcTxResponse = Getter.ErcTxResponse
 }
 
 export { Getter, Handler }
