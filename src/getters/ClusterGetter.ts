@@ -173,8 +173,8 @@ class ClusterGetter extends GetterAbstract {
         let result: Handler.RNodeResponse['data'] = {
             meta: {
                 clusterId: cluster,
-                totalStorage: 0,
-                hasStorage: 0,
+                totalStorage: rnodes.reduce((accu, v) => accu + v.totalStorage, 0),
+                hasStorage: rnodes.reduce((accu, v) => accu + v.hasStorage, 0),
                 rnodeNum: rnodes.length,
                 fnodeNum: rnodes.reduce((accu: number, curr: Getter.RNode) => accu + (curr.num_of_fnodes as number), 0),
                 normalRate,
