@@ -65,6 +65,9 @@ declare namespace Getter {
                     TransactionType: number
                     TransactionBody: {
                         [key: string]: any
+                        transfer?: {
+                            [key: string]: any
+                        }
                         payload?: {
                             [index: string]: any
                         }

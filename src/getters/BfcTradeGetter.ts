@@ -72,9 +72,8 @@ class BfcTradeGetter extends GetterAbstract {
                     tx_type: body.TransactionType,
                     block_hash: block.block_hash,
                     tx_body: {
-                        contract: {
-                            ...body.TransactionBody
-                        }
+                        contract: body.TransactionType === 4 ?
+                            <any>body.TransactionBody.transfer : <any>body.TransactionBody
                     }
                 }
                 return tx
@@ -181,6 +180,7 @@ class BfcTradeGetter extends GetterAbstract {
                             .replace('field', 'Field')
                             .replace('cluster', 'Cluster')
                             .replace('uploader', 'Uploader')
+                            .replace('crypto', 'Crypto')
                     ) : {}
                 }
             }
