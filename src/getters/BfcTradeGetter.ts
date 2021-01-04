@@ -144,7 +144,7 @@ class BfcTradeGetter extends GetterAbstract {
             txs: txsDoc.map(v => {
                 return {
                     Txid: v.tx_id,
-                    Timestamp: v.timestamp
+                    Timestamp: parseInt(v.timestamp.toString().substr(0, 10))
                 }
             })
         }
@@ -158,13 +158,13 @@ class BfcTradeGetter extends GetterAbstract {
         const data: Handler.BfcTransactionResponse['data'] = {
             Txid: txDoc.tx_id,
             BlockHash: txDoc.block_hash,
-            Timestamp: txDoc.timestamp,
+            Timestamp: parseInt(txDoc.timestamp.toString().substr(0, 10)),
             TxType: txDoc.tx_type,
             TxBody: {
                 Contract: {
                     ID: txDoc.tx_body.contract.id,
                     Type: txDoc.tx_body.contract.type,
-                    Timestamp: txDoc.tx_body.contract.timestamp,
+                    Timestamp: txDoc.tx_body.contract.timestamp ? parseInt((txDoc.tx_body.contract.timestamp as number).toString().substr(0, 10)) : undefined,
                     Signature: txDoc.tx_body.contract.signature,
                     Pubkey: txDoc.tx_body.contract.pub_key,
                     Address: txDoc.tx_body.contract.address,

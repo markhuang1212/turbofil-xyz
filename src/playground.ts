@@ -3,8 +3,8 @@ import MongoClientShared from "./MongoClientShared";
 import { Getter } from "./Types";
 
 async function run() {
-    const count = await BfcTradeGetter.shared.uploadsCollection.collection.countDocuments()
-    console.log(count)
+    const ts = '1588522778547319600'
+    const ts2 = '1588522785'
 
 }
 
