@@ -94,6 +94,7 @@ ErcHandler.get('/transaction', async (req, res) => {
                 tx
             }
         }
+        res.json(response)
     } catch (e) {
         console.error(`Error when getting TFC-ERC blocks with request ${req.url}`)
         console.error(e)
