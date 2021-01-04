@@ -223,8 +223,19 @@ class BfcTradeGetter extends GetterAbstract {
         }
 
         intervals.shift()
+        let labels: string[] = []
+        if (interval == 'day' || interval == 'week') {
+            labels = intervals.map(v => dayjs(v).format('YYYY-MM-DD'))
+        } else if (interval == 'month') {
+            labels = intervals.map(v => dayjs(v).format('YYYY-MM'))
+        } else if (interval == 'quarter') {
+            labels = intervals.map(v => `${dayjs(v).format('YYYY-')}Q${dayjs(v).quarter()}`)
+        } else if (interval == 'year') {
+            labels = intervals.map(v => dayjs(v).format('YYYY'))
+        }
+
         return {
-            labels: intervals.map(v => dayjs(v).format('YYYY-MM-DD')),
+            labels,
             uploads: uploads_count,
             rewards: rewards_count
         } as Handler.BfcLineChartDataResponse['data']
