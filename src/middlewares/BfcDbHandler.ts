@@ -1,6 +1,9 @@
 import { Router } from "express";
 import BfcDbGetter from "../getters/BfcDbGetter";
 import { Handler } from "../Types";
+import fetch from 'node-fetch'
+import http from 'http'
+import Env from '../env.json'
 
 const BfcDbHandler = Router()
 
@@ -48,6 +51,48 @@ BfcDbHandler.get('/fileInfo', async (req, res) => {
         res.json(response)
     } catch (e) {
         console.error(`error when getting Bfc-db file info with request ${req.url}`)
+        console.error(e)
+        res.status(500).end()
+    }
+})
+
+BfcDbHandler.get('/rnTrade', async (req, res) => {
+    try {
+        const field = req.query.field
+        const afid = req.query.afid
+        const date = req.query.date
+
+        if (typeof field !== 'string' || typeof afid !== 'string' || typeof date !== 'string')
+            throw Error('Invalid argument')
+
+        const url = `${Env.bfcDb}/field/${field}/file/${afid}/rns?date=${date}`
+        const res_remote = await (await fetch(url)).json()
+        res.json(res_remote)
+
+
+    } catch (e) {
+        console.error(`error when /bfcDb/rnTrade with uri ${req.url}`)
+        console.error(e)
+        res.status(500).end()
+    }
+})
+
+BfcDbHandler.get('/fnTrade', async (req, res) => {
+    try {
+        const field = req.query.field
+        const afid = req.query.afid
+        const date = req.query.date
+        const rnid = req.query.rnid
+
+        if (typeof field !== 'string' || typeof afid !== 'string' || typeof date !== 'string' || typeof rnid !== 'string')
+            throw Error('Invalid argument')
+
+        const url = `${Env.bfcDb}/${field}/${afid}/rns/${rnid}/fns?date=${date}`
+        const res_remote = await (await fetch(url)).json()
+        res.json(res_remote)
+
+    } catch (e) {
+        console.error(`error when /bfcDb/fnTrade with uri ${req.url}`)
         console.error(e)
         res.status(500).end()
     }
