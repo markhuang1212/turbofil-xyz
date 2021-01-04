@@ -14,6 +14,7 @@
         "hget",
         "hset",
         "middlewares",
+        "mongod",
         "rnode",
         "rnodes",
         "sortorder",
