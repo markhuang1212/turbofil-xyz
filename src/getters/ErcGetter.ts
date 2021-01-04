@@ -15,15 +15,15 @@ class ErcGetter extends GetterAbstract {
     blocksCollection = new CollectionAbstract<Getter.ErcBlock>(MongoClientShared, 'tfc-erc', 'blocks')
     txsCollection = new CollectionAbstract<Getter.ErcTransaction>(MongoClientShared, 'tfc-erc', 'txs')
 
-    task() {
+    async task() {
         try {
-            this.cacheBlocks()
+            await this.cacheBlocks()
         } catch (e) {
             console.error(`error when caching ERC20 blocks`)
             console.error(e)
         }
         try {
-            this.cacheTxs()
+            await this.cacheTxs()
         } catch (e) {
             console.error(`error when caching ERC20 transactions`)
             console.error(e)
@@ -63,7 +63,8 @@ class ErcGetter extends GetterAbstract {
         const start_page = Math.floor(currCount / BUFFER_SIZE) + 1
         const bulk = this.txsCollection.collection.initializeUnorderedBulkOp()
         for (let p = start_page; true; p++) {
-            const response = await (await fetch(`${Env.erc}/txs?page=${p}&count=${BUFFER_SIZE}&sortOrder=asc`)).json() as Getter.ErcTxsResponse
+            const uri = `${Env.erc}/txs?page=${p}&count=${BUFFER_SIZE}&sortOrder=asc`
+            const response = await (await fetch(uri)).json() as Getter.ErcTxsResponse
             if (response.data.txs.length == 0)
                 break;
             for (let tx of response.data.txs) {
