@@ -40,7 +40,9 @@ const start = async () => {
 
     app = express()
 
-    app.use(cors())
+    app.use(cors({
+        exposedHeaders: ['X-Total-Count']
+    }))
 
     app.use('/bgc', BgcHandler)
 
@@ -50,6 +52,8 @@ const start = async () => {
     app.use('/bfcChain', BfcChainHandler)
     app.use('/tfc', TfcHandler)
     app.use('/erc', ErcHandler)
+
+    // app.options('*', <any>cors())
 
     app.listen(Env.port, () => {
         console.log(`listening at port ${Env.port}`)
