@@ -79,6 +79,11 @@ class TfcGetter extends GetterAbstract {
         return height
     }
 
+    async getTxCount() {
+        const height = await this.txCollection.collection.countDocuments()
+        return height
+    }
+
     async getTxs(page: number, count: number) {
         const txs =
             await this.txCollection.collection.find().sort({ timestamp: -1 }).skip((page - 1) * count).limit(count).toArray()

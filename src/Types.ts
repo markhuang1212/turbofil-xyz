@@ -1,5 +1,3 @@
-import { Long, Int32 } from "mongodb";
-
 declare namespace Getter {
 
     interface DBCachedObject {

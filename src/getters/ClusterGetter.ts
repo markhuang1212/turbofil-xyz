@@ -100,10 +100,9 @@ class ClusterGetter extends GetterAbstract {
 
         const webPageResponse = await fetch(webpageUri)
         const webPageText = await webPageResponse.text()
-
-        // const rnodesId = webPageToRnodesId(webPageText)
-        // const rnodesInfo = webPageToInfo(webPageText)
         const rnodeInfo = webPageToClusterInfo(webPageText)
+
+        const bulk = this.rnodeCollections.get(cluster)!.collection.initializeUnorderedBulkOp()
 
         for (let i = 0; i < rnodeInfo.length; i++) {
             const rnStatusUri = `${rnodeUri}/rnStatus/${rnodeInfo[i].rnId}`
@@ -111,8 +110,6 @@ class ClusterGetter extends GetterAbstract {
 
             const rnStatusJson: Getter.RNodeStatusResponse = await (await fetch(rnStatusUri)).json()
             const fnStatusJson: Getter.FNodeStatusResponse = await (await fetch(fnStatusUri)).json()
-
-            // console.log(fnStatusJson)
 
             let rnode: Getter.RNode = {
                 rn_id: rnodeInfo[i].rnId,
@@ -141,9 +138,12 @@ class ClusterGetter extends GetterAbstract {
 
             const mongoCollection = this.rnodeCollections.get(cluster)!.collection
 
-            await mongoCollection.updateOne({ rn_id: rnode.rn_id }, { $set: rnode }, { upsert: true })
+            // await mongoCollection.updateOne({ rn_id: rnode.rn_id }, { $set: rnode }, { upsert: true })
+            bulk.find({ rn_id: rnode.rn_id }).upsert().update({ $set: rnode })
 
         }
+
+        await bulk.execute()
 
         console.log(`caching rnode for cluster ${cluster} success`)
 
