@@ -7,8 +7,10 @@ import fetch from 'node-fetch'
 import dayjs, { Dayjs } from "dayjs";
 
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
 
 dayjs.extend(quarterOfYear)
+dayjs.extend(advancedFormat)
 
 class BfcTradeGetter extends GetterAbstract {
 
@@ -229,7 +231,7 @@ class BfcTradeGetter extends GetterAbstract {
         } else if (interval == 'month') {
             labels = intervals.map(v => dayjs(v).format('YYYY-MM'))
         } else if (interval == 'quarter') {
-            labels = intervals.map(v => `${dayjs(v).format('YYYY-')}Q${dayjs(v).quarter()}`)
+            labels = intervals.map(v => `${dayjs(v).format('YYYY-[Q]Q')}`)
         } else if (interval == 'year') {
             labels = intervals.map(v => dayjs(v).format('YYYY'))
         }
