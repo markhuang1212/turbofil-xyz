@@ -16,6 +16,7 @@
         "hset",
         "middlewares",
         "mongod",
+        "pino",
         "rnid",
         "rnode",
         "rnodes",
