@@ -33,7 +33,8 @@ class BfcChainGetter extends GetterAbstract {
                 key: META_KEY_BFC_CHAIN_REWARDS,
                 success: false
             })
-            loggerRewards.error(e, 'Error when caching rewards')
+            loggerRewards.error('Error when caching rewards')
+            loggerRewards.debug(e)
         }
     }
 

@@ -6,12 +6,8 @@ import { Getter, Handler } from '../Types'
 import LoggerShared from '../LoggerShared'
 import MongoClientShared from '../MongoClientShared'
 
-const clusterRnodeLogger = LoggerShared.child({
-    service: 'GETTER::CLUSTER::RNODES'
-})
-
-const clusterOverviewLogger = LoggerShared.child({
-    service: 'GETTER::CLUSTER::OVERVIEW'
+const logger = LoggerShared.child({
+    service: 'GETTER::CLUSTER'
 })
 
 function webPageToClusterInfo(text: string) {
@@ -80,30 +76,31 @@ class ClusterGetter extends GetterAbstract {
             const response = await fetch(fetch_uri)
             const responseJson = await response.json()
             this.clusterOverviews.set(cluster, responseJson)
-            console.log(`overview for cluster ${cluster} finished.`)
+            logger.info({ cluster, uri }, 'Caching success')
         } catch (e) {
-            console.error(`error occurred when caching overview for cluster ${cluster}`)
-            console.error(e)
+            logger.info({ uri }, `Cannot cache overview for cluster ${cluster}`)
         }
     }
 
     cacheOverview() {
-        console.log('caching overviews')
+        logger.info('Start caching overview')
         for (let [clusterName, clusterUri] of this.clusterOverviewsInfo) {
             this.cacheOverviewForCluster(clusterName, clusterUri)
         }
     }
 
     async cacheRNodesForCluster(cluster: string) {
-        console.log(`start caching rnode for cluster ${cluster}`)
+        logger.info(`Start caching rnodes for cluster ${cluster}`)
 
         const collectionManaged = this.rnodeCollections.get(cluster)
         const webpageUri = this.clusterWebInfo.get(cluster)
         const rnodeUri = this.clusterRNodeInfo.get(cluster)
 
         if (!collectionManaged || !webpageUri || !rnodeUri) {
-            throw Error(`Error when caching rnode for cluster ${cluster}`)
+            throw Error(`Invalid cluster name`)
         }
+
+        /** Argument check ends */
 
         const webPageResponse = await fetch(webpageUri)
         const webPageText = await webPageResponse.text()
@@ -140,31 +137,24 @@ class ClusterGetter extends GetterAbstract {
             }
 
             rnode.totalStorage = rnode.fnodes.reduce((accu, curr) => accu + (curr.quotaM as number), 0)
-
             rnode.hasStorage = rnode.fnodes.reduce((accu, curr) => accu + (curr.usedM as number), 0)
-
-            const mongoCollection = this.rnodeCollections.get(cluster)!.collection
-
-            // await mongoCollection.updateOne({ rn_id: rnode.rn_id }, { $set: rnode }, { upsert: true })
             bulk.find({ rn_id: rnode.rn_id }).upsert().update({ $set: rnode })
 
         }
 
         await bulk.execute()
-
-        console.log(`caching rnode for cluster ${cluster} success`)
+        logger.info(`caching rnodes for cluster ${cluster} success`)
 
     }
 
     async cacheRNodes() {
-        console.log('caching rnodes')
+        logger.info('Start caching rnodes')
         for (let [clusterName, _] of this.clusterRNodeInfo) {
             this.cacheRNodesForCluster(clusterName).catch(e => {
-                console.error(`error when caching cluster ${clusterName}`)
-                console.error(e)
+                logger.info(`Error when caching rnodes for cluster ${clusterName}`)
+                logger.debug(e)
             })
         }
-        console.log('caching rnodes complete.')
     }
 
     async getRNode(cluster: string) {
