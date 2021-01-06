@@ -4,10 +4,12 @@ import MongoClientShared from "./MongoClientShared";
 import { Getter } from "./Types";
 
 async function run() {
-    const ts = '1588522778547319600'
-    const ts2 = '1588522785'
-    LoggerShared.debug('Hello World!')
-    LoggerShared.info('Hello World')
+    try {
+        throw Error("Some Error!")
+    } catch (e) {
+        LoggerShared.child({ service: 'PLAYGROUND' }).error(e)
+    }
+
 }
 
 run()

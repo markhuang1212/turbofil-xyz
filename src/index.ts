@@ -16,12 +16,15 @@ import MongoClientShared from './MongoClientShared'
 import cors from 'cors'
 import ErcGetter from './getters/ErcGetter'
 import ErcHandler from './middlewares/ErcHandler'
+import http from 'http'
+import LoggerShared from './LoggerShared'
 
 let app!: Express
+let server: http.Server
 
 const start = async () => {
     await MongoClientShared.connect()
-    console.log('mongo client connected.')
+    LoggerShared.info('Mongo Client Connected.')
 
     ClusterGetter.shared.initialize()
     ClusterGetter.shared.task()
@@ -53,17 +56,10 @@ const start = async () => {
     app.use('/tfc', TfcHandler)
     app.use('/erc', ErcHandler)
 
-    // app.options('*', <any>cors())
-
-    app.listen(Env.port, () => {
-        console.log(`listening at port ${Env.port}`)
+    server = app.listen(Env.port, () => {
+        LoggerShared.info({ port: Env.port }, `Turbofil-xyz Backend Server Listening.`)
     })
 
 }
 
 start()
-
-process.on('SIGTERM', () => {
-    console.log('Server to terminate.')
-    process.exit(0)
-})

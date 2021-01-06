@@ -13,6 +13,10 @@ abstract class GetterAbstract {
         }, Env.jobIntervalSeconds * 1000)
     }
 
+    constructor() {
+        this.periodic()
+    }
+
     abstract task(): any
     abstract initialize(): any
 }

@@ -2,34 +2,60 @@ import MongoClientShared from "../MongoClientShared";
 import { Getter } from "../Types";
 import GetterAbstract from "./GetterAbstract";
 import fetch from 'node-fetch'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import CollectionAbstract from "./CollectionAbstract";
 import Env from '../env.json'
+import LoggerShared from "../LoggerShared";
 
 const FIRST_DAY = '20200701'
+
+const loggerRewards = LoggerShared.child({ service: 'GETTER::BFC-CHAIN::REWARDS' })
+const META_KEY_BFC_CHAIN_REWARDS = 'bfc-chain-rewards'
 
 class BfcChainGetter extends GetterAbstract {
 
     static shared = new BfcChainGetter()
 
     rewardCollection = new CollectionAbstract<Getter.BfcChainReward>(MongoClientShared, 'bfc-chain', 'rewards')
-    // rnTradeCollection= new CollectionAbstract(MongoClientShared, 'bfc-db', 'rn-trade')
-    // fnTradeCollection= new CollectionAbstract(MongoClientShared, 'bfc-db', 'fn-trade')
+    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
 
     async task() {
-        await this.cacheRewards()
+        try {
+            await this.cacheRewards()
+            this.metaCollection.collection.updateOne({ key: META_KEY_BFC_CHAIN_REWARDS }, {
+                $set: {
+                    key: META_KEY_BFC_CHAIN_REWARDS,
+                    success: true
+                }
+            }, { upsert: true })
+        } catch (e) {
+            this.metaCollection.collection.insertOne({
+                key: META_KEY_BFC_CHAIN_REWARDS,
+                success: false
+            })
+            loggerRewards.error(e, 'Error when caching rewards')
+        }
     }
 
     async initialize() {
-        // await this.rewardCollection.collection.createIndex({ field: 1, fileid: 1 })
         await this.rewardCollection.collection.createIndex({ date: 1 })
     }
 
     async cacheRewards() {
-        console.log('start caching BFC-Chain rewards.')
 
-        const most_recent_doc = await this.rewardCollection.collection.find().sort({ date: -1 }).limit(1).next()
-        let day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
+        loggerRewards.info('Start caching')
+        let day_temp: Dayjs
+
+        const meta = await this.metaCollection.collection.findOne({ key: 'bfc-chain-rewards' })
+        if (meta && meta.success === false) {
+            loggerRewards.info('Re-cache')
+            day_temp = dayjs(FIRST_DAY)
+        } else {
+            loggerRewards.info('Lazy caching')
+            const most_recent_doc =
+                await this.rewardCollection.collection.find({}, { projection: { date: 1 } }).sort({ date: -1 }).limit(1).next()
+            day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
+        }
 
         const next_day = dayjs().add(1, 'day')
         while (day_temp.isBefore(next_day, 'day')) {
@@ -39,12 +65,13 @@ class BfcChainGetter extends GetterAbstract {
 
             const countExist = await this.rewardCollection.collection.countDocuments({ date: day_temp.toDate() })
             if (count == countExist) {
-                // SKIP
+                loggerRewards.debug(`Rewards for ${day_temp.format('YYYY-MM-DD')} already exists. skipping`)
                 day_temp = day_temp.add(1, 'day')
                 continue
             }
 
-            const dataResponse: Getter.BfcChainRewardResponse = await (await fetch(`${Env.bfcChain}/rewards?page=1&count=${count}&date=${dateStr}`)).json()
+            const dataResponse: Getter.BfcChainRewardResponse
+                = await (await fetch(`${Env.bfcChain}/rewards?page=1&count=${count}&date=${dateStr}`)).json()
             const blocksResponse = dataResponse.Data
 
             const bulk = this.rewardCollection.collection.initializeUnorderedBulkOp()
@@ -63,10 +90,28 @@ class BfcChainGetter extends GetterAbstract {
             day_temp = day_temp.add(1, 'day')
         }
 
-        console.log('caching for BFC-Chain rewards complete.')
+        loggerRewards.info('Successfully cached: Rewards')
     }
 
     async getRewards(page: number, count: number, date: string) {
+
+        page = Math.floor(page)
+        count = Math.floor(count)
+
+        if (page <= 0) {
+            throw Error('Invalid argument: page')
+        }
+
+        if (count <= 0) {
+            throw Error('Invalid argument: count')
+        }
+
+        if (dayjs(date, 'YYYYMMDD').isValid() === false) {
+            throw Error('Invalid argument: date')
+        }
+
+        /** Argument checking ends */
+
         const date_d = dayjs(date, 'YYYYMMDD').toDate()
         const data = await this.rewardCollection.collection.find({
             date: date_d
@@ -80,6 +125,12 @@ class BfcChainGetter extends GetterAbstract {
     }
 
     async getRewardsCount(date: string) {
+
+        if (dayjs(date, 'YYYYMMDD').isValid() === false)
+            throw Error('Invalid argument: date')
+
+        /** Argument checking ends */
+
         const data_d = dayjs(date, 'YYYYMMDD').toDate()
         return this.rewardCollection.collection.countDocuments({ date: data_d })
     }

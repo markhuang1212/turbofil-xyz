@@ -1,5 +1,10 @@
 declare namespace Getter {
 
+    interface DBMetaData {
+        key: string
+        success: boolean
+    }
+
     interface DBCachedObject {
         cached_success: boolean
     }

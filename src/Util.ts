@@ -1,7 +1,12 @@
+import LoggerShared from "./LoggerShared"
+
 function fatalError(msg: string) {
-    console.log(`FATAL ERROR: ${msg}`)
-    console.log('server terminating.')
+    LoggerShared.fatal(msg)
     process.exit(1)
 }
 
-export {fatalError}
+function error(msg: string) {
+    LoggerShared.error(msg)
+}
+
+export { fatalError, error }

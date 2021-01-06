@@ -3,8 +3,16 @@ import CollectionAbstract from './CollectionAbstract'
 import GetterAbstract from './GetterAbstract'
 import fetch from 'node-fetch'
 import { Getter, Handler } from '../Types'
+import LoggerShared from '../LoggerShared'
+import MongoClientShared from '../MongoClientShared'
 
-const SERVICE_NAME = 'GETTER::CLUSTER'
+const clusterRnodeLogger = LoggerShared.child({
+    service: 'GETTER::CLUSTER::RNODES'
+})
+
+const clusterOverviewLogger = LoggerShared.child({
+    service: 'GETTER::CLUSTER::OVERVIEW'
+})
 
 function webPageToClusterInfo(text: string) {
     const textEle = text.split('rs=').map(v => 'rs=' + v).splice(1)
@@ -29,7 +37,7 @@ function webPageToClusterInfo(text: string) {
 class ClusterGetter extends GetterAbstract {
 
     initialize() {
-        this.rnodeCollections.forEach((val, key) => {
+        this.rnodeCollections.forEach((val) => {
             val.collection.createIndex({ rn_id: 1 })
         })
     }
@@ -56,10 +64,9 @@ class ClusterGetter extends GetterAbstract {
 
     constructor() {
         super()
-        this.clusterRNodeInfo.forEach((val, key) => {
-            this.rnodeCollections.set(key, CollectionAbstract.makeCollectionAbstract<Getter.RNode>('clusters', key))
+        this.clusterRNodeInfo.forEach((_, key) => {
+            this.rnodeCollections.set(key, new CollectionAbstract<Getter.RNode>(MongoClientShared, 'clusters', key))
         })
-        this.periodic()
     }
 
     task() {
