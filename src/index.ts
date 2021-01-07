@@ -19,6 +19,8 @@ import ErcHandler from './middlewares/ErcHandler'
 import http from 'http'
 import LoggerShared from './LoggerShared'
 import ExpressPinoLogger from 'express-pino-logger'
+import fs from 'fs'
+import path from 'path'
 
 let app!: Express
 let server: http.Server
@@ -30,6 +32,8 @@ if (process.env.NODE_ENV !== "development") {
     console.log('Turbofil-xyz backend start running. Logs is stored in ./logs.')
     console.log('To view the formatted logs, run "cat logs/file.log | npx pino-pretty"')
 }
+
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf-8'))
 
 const start = async () => {
     await MongoClientShared.connect()
@@ -65,6 +69,10 @@ const start = async () => {
     app.use('/bfcChain', BfcChainHandler)
     app.use('/tfc', TfcHandler)
     app.use('/erc', ErcHandler)
+
+    app.get('/version', (req, res) => res.json({
+        version: packageJson.version
+    }))
 
     server = app.listen(Env.port, () => {
         LoggerShared.info({ port: Env.port }, `Turbofil-xyz Backend Server Listening.`)
