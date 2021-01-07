@@ -5,8 +5,9 @@ import CollectionAbstract from "./CollectionAbstract";
 import MongoClientShared from "../MongoClientShared";
 import { Getter, Handler } from "../Types";
 import BgcHandler from "../middlewares/BgcHandler";
+import LoggerShared from "../LoggerShared";
 
-const SERVICE_NAME = 'GETTER::BGC'
+const logger = LoggerShared.child({ service: 'GETTER::BGC' })
 
 class BgcGetter extends GetterAbstract {
 
@@ -18,8 +19,8 @@ class BgcGetter extends GetterAbstract {
         try {
             await this.cacheBlocks()
         } catch (e) {
-            console.error(`error when caching BGC blocks`)
-            console.error(e)
+            logger.error('error when caching BGC blocks')
+            logger.error(e)
         }
     }
 
@@ -28,7 +29,7 @@ class BgcGetter extends GetterAbstract {
     }
 
     async cacheBlocks() {
-        console.log('start caching BGC blocks')
+        logger.info('Start caching BGC blocks')
 
         const BUFFER_SIZE = 100
 
@@ -47,7 +48,7 @@ class BgcGetter extends GetterAbstract {
             await bulk.execute()
         }
 
-        console.log('caching BGC blocks complete.')
+        logger.info('caching BGC blocks success.')
     }
 
     async getBlocks(page: number, count: number) {

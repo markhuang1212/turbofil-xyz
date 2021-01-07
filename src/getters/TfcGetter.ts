@@ -4,9 +4,10 @@ import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
 import Env from '../env.json'
 import fetch from 'node-fetch'
+import LoggerShared from "../LoggerShared";
 
 const BUFFER_SIZE = 64
-const SERVICE_NAME = 'GETTER::TFC'
+const logger = LoggerShared.child({ service: 'GETTER::TFC' })
 
 class TfcGetter extends GetterAbstract {
 
@@ -16,7 +17,12 @@ class TfcGetter extends GetterAbstract {
     txCollection = new CollectionAbstract<Getter.TfcTransaction>(MongoClientShared, 'tfc', 'transactions')
 
     async task() {
-        await this.cacheBlocksAndTransactions()
+        try {
+            await this.cacheBlocksAndTransactions()
+        } catch (e) {
+            logger.error('Error when caching TFC blocks and transactions')
+            logger.error(e)
+        }
     }
 
     initialize() {
@@ -27,7 +33,7 @@ class TfcGetter extends GetterAbstract {
     }
 
     async cacheBlocksAndTransactions() {
-        console.log(`start caching TFC blocks.`)
+        logger.info(`start caching TFC blocks.`)
 
         const blockHeightResponse: Getter.TfcBlockHeightResponse
             = await (await fetch(`${Env.tfc}/blockHeight`)).json()
@@ -63,7 +69,7 @@ class TfcGetter extends GetterAbstract {
             ])
         }
 
-        console.log(`caching TFC blocks completed.`)
+        logger.info(`caching TFC blocks completed.`)
     }
 
     async getBlocks(page: number, count: number) {

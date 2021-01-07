@@ -66,7 +66,7 @@ class BfcChainGetter extends GetterAbstract {
 
             const countExist = await this.rewardCollection.collection.countDocuments({ date: day_temp.toDate() })
             if (count == countExist) {
-                loggerRewards.debug(`Rewards for ${day_temp.format('YYYY-MM-DD')} already exists. skipping`)
+                loggerRewards.debug(`Skipping rewards of ${day_temp.format('YYYY-MM-DD')}`)
                 day_temp = day_temp.add(1, 'day')
                 continue
             }

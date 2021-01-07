@@ -4,9 +4,10 @@ import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
 import fetch from 'node-fetch'
 import Env from '../env.json'
-import { createNamedExports } from "typescript";
+import LoggerShared from "../LoggerShared";
 
 const BUFFER_SIZE = 100
+const logger = LoggerShared.child({ service: 'GETTER::ERC' })
 
 class ErcGetter extends GetterAbstract {
 
@@ -19,14 +20,14 @@ class ErcGetter extends GetterAbstract {
         try {
             await this.cacheBlocks()
         } catch (e) {
-            console.error(`error when caching ERC20 blocks`)
-            console.error(e)
+            logger.error(`error when caching ERC20 blocks`)
+            logger.error(e)
         }
         try {
             await this.cacheTxs()
         } catch (e) {
-            console.error(`error when caching ERC20 transactions`)
-            console.error(e)
+            logger.error(`error when caching ERC20 transactions`)
+            logger.error(e)
         }
     }
 
@@ -38,7 +39,7 @@ class ErcGetter extends GetterAbstract {
     }
 
     async cacheBlocks() {
-        console.log('start caching ERC blocks')
+        logger.info('start caching ERC blocks')
         const currCount = await this.blocksCollection.collection.countDocuments()
         const start_page = Math.floor(currCount / BUFFER_SIZE) + 1
         const bulk = this.blocksCollection.collection.initializeUnorderedBulkOp()
@@ -54,11 +55,11 @@ class ErcGetter extends GetterAbstract {
             }
         }
         await bulk.execute()
-        console.log('caching ERC blocks complete.')
+        logger.info('caching ERC blocks complete.')
     }
 
     async cacheTxs() {
-        console.log('start caching ERC txs')
+        logger.info('start caching ERC txs')
         const currCount = await this.txsCollection.collection.countDocuments()
         const start_page = Math.floor(currCount / BUFFER_SIZE) + 1
         const bulk = this.txsCollection.collection.initializeUnorderedBulkOp()
@@ -75,7 +76,7 @@ class ErcGetter extends GetterAbstract {
             }
         }
         await bulk.execute()
-        console.log('caching ERC txs complete.')
+        logger.info('caching ERC txs complete.')
     }
 
     async getBlocks(page: number, count: number, sortOrder: 'desc' | 'asc') {

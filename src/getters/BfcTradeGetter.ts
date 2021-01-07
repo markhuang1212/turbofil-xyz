@@ -8,9 +8,12 @@ import dayjs, { Dayjs } from "dayjs";
 
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
+import LoggerShared from "../LoggerShared";
 
 dayjs.extend(quarterOfYear)
 dayjs.extend(advancedFormat)
+
+const logger = LoggerShared.child({ service: 'GETTER::BFC-TRADE' })
 
 class BfcTradeGetter extends GetterAbstract {
 
@@ -34,16 +37,17 @@ class BfcTradeGetter extends GetterAbstract {
 
     async task() {
         try {
-            console.log('start getting BFC blocks and transactions')
             await this.cacheBlocksAndTransactions()
-            console.log('getting BFC blocks and transactions finished')
         } catch (e) {
-            console.error('error when getting BFC blocks and transactions')
-            console.error(e)
+            logger.error('error when getting BFC blocks and transactions')
+            logger.error(e)
         }
     }
 
     async cacheBlocksAndTransactions() {
+
+        logger.info('Start caching blocks and transactions')
+
         const response = await fetch(Env.bfcBlocks)
         const hasHeight = (await response.json()).Height
 
@@ -85,6 +89,8 @@ class BfcTradeGetter extends GetterAbstract {
                 await this.txCollection.collection.updateOne({ tx_id: tx.tx_id }, { $set: tx }, { upsert: true })
             }
         }
+
+        logger.info('Caching blocks and transactions success')
     }
 
     async getBlocks(page: number, count: number, sortOrder: 'desc' | 'asc'): Promise<Handler.BfcBlocksResponse['data']> {

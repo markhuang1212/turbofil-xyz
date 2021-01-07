@@ -5,18 +5,30 @@ import dayjs from 'dayjs'
 import fetch from 'node-fetch'
 import Env from '../env.json'
 import { Getter } from "../Types";
+import LoggerShared from "../LoggerShared";
 
 const FIRST_DAY = '20200701'
+
+const logger = LoggerShared.child({ service: 'GETTER::BFC-DB' })
 
 class BfcDbGetter extends GetterAbstract {
 
     static shared = new BfcDbGetter()
 
     async task() {
-        await this.cacheUploads()
-        await this.cacheFilesInfo()
-        await this.cacheRnTrade()
-        await this.cacheFnTrade()
+        try {
+            await this.cacheUploads()
+        } catch (e) {
+            logger.error('Cannot cache uploads')
+            logger.error(e)
+            return
+        }
+        try {
+            await this.cacheFilesInfo()
+        } catch (e) {
+            logger.error('Cannot cache files info')
+            logger.error(e)
+        }
     }
 
     initialize() {
@@ -26,11 +38,9 @@ class BfcDbGetter extends GetterAbstract {
     }
 
     uploadCollection = new CollectionAbstract<Getter.BfcDbUpload>(MongoClientShared, 'bfc-db', 'uploads')
-    // rnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'rn-trade')
-    // fnTradeCollection: CollectionAbstract<any> = new CollectionAbstract(MongoClientShared, 'bfc-db', 'fn-trade')
 
     async cacheUploads() {
-        console.log('start caching uploads for BFC-db')
+        logger.info('start caching uploads')
 
         const most_recent_doc = await this.uploadCollection.collection.find().sort({ date: -1 }).limit(1).next()
         let day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
@@ -43,7 +53,7 @@ class BfcDbGetter extends GetterAbstract {
 
             const countExist = await this.uploadCollection.collection.countDocuments({ date: day_temp.toDate() })
             if (count == countExist) {
-                // console.debug('skip')
+                logger.debug(`skipping uploads of ${day_temp.format('YYYY-MM-DD')}`)
                 day_temp = day_temp.add(1, 'day')
                 continue
             }
@@ -66,13 +76,13 @@ class BfcDbGetter extends GetterAbstract {
 
             day_temp = day_temp.add(1, 'day')
         }
-        console.log('caching for uploads of BFC-db success.')
 
+        logger.info('Caching uploads success')
 
     }
 
     async cacheFilesInfo() {
-        console.log('starting caching files info for BFC-db')
+        logger.info('Start caching files info')
         const filesToCache = this.uploadCollection.collection.find({ info: { $exists: false } })
         while (await filesToCache.hasNext()) {
             const { fileid, field } = (await filesToCache.next())!
@@ -85,7 +95,7 @@ class BfcDbGetter extends GetterAbstract {
                 }
             })
         }
-        console.log('caching of files info for BFC-db complete.')
+        logger.info('Caching files info success')
     }
 
     async getUploads(page: number, count: number, date: string) {
