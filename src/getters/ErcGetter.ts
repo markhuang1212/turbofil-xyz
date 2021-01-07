@@ -76,7 +76,7 @@ class ErcGetter extends GetterAbstract {
     }
 
     async getBlocks(page: number, count: number, sortOrder: 'desc' | 'asc') {
-        const SORT_ORDER = sortOrder == 'asc' ? -1 : 1
+        const SORT_ORDER = sortOrder == 'asc' ? 1 : -1
         return this.blocksCollection.collection.find({}, {
             projection: {
                 hash: 1,
