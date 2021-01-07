@@ -80,4 +80,35 @@ const start = async () => {
 
 }
 
+declare module 'http' {
+    interface Server {
+        closeAsync: () => Promise<void>
+    }
+}
+
+http.Server.prototype.closeAsync = function () {
+    return new Promise((res, rej) => {
+        this.close(err => {
+            if (err)
+                rej(err)
+            res()
+        })
+    })
+}
+
 start()
+
+process.on('SIGTERM', () => {
+    console.log('Cleaning up...')
+    Promise.all([
+        server.closeAsync().then(() => console.log('HTTP Server closed.')),
+        MongoClientShared.close(false).then(() => console.log('Mongo Client closed.'))
+    ]).then(() => {
+        console.log('Exiting...')
+        process.exit(0)
+    }).catch(e => {
+        console.log('Exit with error.')
+        console.log(e)
+        process.exit(0)
+    })
+})

@@ -3,13 +3,25 @@ import LoggerShared from "./LoggerShared";
 import MongoClientShared from "./MongoClientShared";
 import { Getter } from "./Types";
 
-async function run() {
-    try {
-        throw Error("Some Error!")
-    } catch (e) {
-        LoggerShared.child({ service: 'PLAYGROUND' }).error(e)
-    }
-
+function wait1() {
+    return new Promise((res, rej) => {
+        setTimeout(() => {
+            console.log('wait1 finish')
+            res(undefined)
+        }, 1000)
+    })
 }
 
-run()
+function wait2() {
+    return new Promise((res, rej) => {
+        setTimeout(() => {
+            console.log('wait2 finish')
+            res(undefined)
+        }, 2000)
+    })
+}
+
+Promise.all([
+    wait1().then(() => console.log('hi')),
+    wait2().then(() => console.log('hi'))
+]).then(() => console.log('finish'))
