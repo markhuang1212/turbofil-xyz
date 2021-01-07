@@ -113,6 +113,10 @@ class BfcDbGetter extends GetterAbstract {
     async cacheFilesInfo() {
         logger.info('Start caching files info')
         const filesToCache = this.uploadCollection.collection.find({ info: { $exists: false } })
+        if (await filesToCache.hasNext() === false) {
+            logger.info('Caching files info success (Nothing to cache)')
+            return;
+        }
         const bulk = this.uploadCollection.collection.initializeUnorderedBulkOp()
         while (await filesToCache.hasNext()) {
             const { fileid, field } = (await filesToCache.next())!

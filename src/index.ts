@@ -26,8 +26,10 @@ let expressPinoLogger = ExpressPinoLogger({
     logger: LoggerShared
 })
 
-console.log('Turbofil-xyz backend start running. Logs is stored in ./logs.')
-console.log('To view the formatted logs, run "cat logs/file.log | npx pino-pretty"')
+if (process.env.NODE_ENV !== "development") {
+    console.log('Turbofil-xyz backend start running. Logs is stored in ./logs.')
+    console.log('To view the formatted logs, run "cat logs/file.log | npx pino-pretty"')
+}
 
 const start = async () => {
     await MongoClientShared.connect()

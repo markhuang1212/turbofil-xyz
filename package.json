@@ -1,9 +1,10 @@
 {
   "name": "turbofil-xyz",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "update": "ts-node src/update_script.ts",
     "start": "NODE_ENV=development ts-node src/index.ts | npx pino-pretty -t \"SYS:standard\" -i hostname",
     "build": "tsc",
     "test": "ts-mocha -p tsconfig.json src/**/*.spec.ts"
@@ -16,6 +17,7 @@
     "@types/node-fetch": "^2.5.7",
     "@types/redis": "^2.8.28",
     "chai": "^4.2.0",
+    "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dayjs": "^1.9.8",
     "express": "^4.17.1",
