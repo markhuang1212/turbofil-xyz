@@ -9,7 +9,7 @@ import LoggerShared from "../LoggerShared";
 
 const FIRST_DAY = '20200701'
 
-const loggerRewards = LoggerShared.child({ service: 'GETTER::BFC-CHAIN::REWARDS' })
+const logger = LoggerShared.child({ service: 'GETTER::BFC-CHAIN' })
 const META_KEY_BFC_CHAIN_REWARDS = 'bfc-chain-rewards'
 
 class BfcChainGetter extends GetterAbstract {
@@ -22,19 +22,19 @@ class BfcChainGetter extends GetterAbstract {
     async task() {
         try {
             await this.cacheRewards()
-            this.metaCollection.collection.updateOne({ key: META_KEY_BFC_CHAIN_REWARDS }, {
+            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_CHAIN_REWARDS }, {
                 $set: {
                     key: META_KEY_BFC_CHAIN_REWARDS,
                     success: true
                 }
             }, { upsert: true })
         } catch (e) {
-            this.metaCollection.collection.insertOne({
+            await this.metaCollection.collection.insertOne({
                 key: META_KEY_BFC_CHAIN_REWARDS,
                 success: false
             })
-            loggerRewards.error('Error when caching rewards')
-            loggerRewards.debug(e)
+            logger.error('Error when caching rewards')
+            logger.debug(e)
         }
     }
 
@@ -44,15 +44,17 @@ class BfcChainGetter extends GetterAbstract {
 
     async cacheRewards() {
 
-        loggerRewards.info('Start caching')
+        logger.info('Start caching')
         let day_temp: Dayjs
 
-        const meta = await this.metaCollection.collection.findOne({ key: 'bfc-chain-rewards' })
-        if (meta && meta.success === false) {
-            loggerRewards.info('Re-cache')
+        const meta = await this.metaCollection.collection.findOne({ key: META_KEY_BFC_CHAIN_REWARDS })
+        if (meta == null) {
+            day_temp = dayjs(FIRST_DAY)
+        } else if (meta.success === false) {
+            logger.info('Re-caching rewards')
             day_temp = dayjs(FIRST_DAY)
         } else {
-            loggerRewards.info('Lazy caching')
+            logger.info('Lazy caching rewards')
             const most_recent_doc =
                 await this.rewardCollection.collection.find({}, { projection: { date: 1 } }).sort({ date: -1 }).limit(1).next()
             day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
@@ -66,7 +68,7 @@ class BfcChainGetter extends GetterAbstract {
 
             const countExist = await this.rewardCollection.collection.countDocuments({ date: day_temp.toDate() })
             if (count == countExist) {
-                loggerRewards.debug(`Skipping rewards of ${day_temp.format('YYYY-MM-DD')}`)
+                logger.debug(`Skipping rewards of ${day_temp.format('YYYY-MM-DD')}`)
                 day_temp = day_temp.add(1, 'day')
                 continue
             }
@@ -91,7 +93,7 @@ class BfcChainGetter extends GetterAbstract {
             day_temp = day_temp.add(1, 'day')
         }
 
-        loggerRewards.info('Successfully cached: Rewards')
+        logger.info('Successfully cached: Rewards')
     }
 
     async getRewards(page: number, count: number, date: string) {

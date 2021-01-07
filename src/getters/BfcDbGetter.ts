@@ -1,13 +1,14 @@
 import MongoClientShared from "../MongoClientShared";
 import CollectionAbstract from "./CollectionAbstract";
 import GetterAbstract from "./GetterAbstract";
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import fetch from 'node-fetch'
 import Env from '../env.json'
 import { Getter } from "../Types";
 import LoggerShared from "../LoggerShared";
 
 const FIRST_DAY = '20200701'
+const META_KEY_BFC_DB_REWARDS = 'bfc-db-uploads'
 
 const logger = LoggerShared.child({ service: 'GETTER::BFC-DB' })
 
@@ -15,9 +16,17 @@ class BfcDbGetter extends GetterAbstract {
 
     static shared = new BfcDbGetter()
 
+    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
+
     async task() {
         try {
             await this.cacheUploads()
+            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_DB_REWARDS }, {
+                $set: {
+                    key: META_KEY_BFC_DB_REWARDS,
+                    success: true
+                }
+            }, { upsert: true })
         } catch (e) {
             logger.error('Cannot cache uploads')
             logger.error(e)
@@ -42,8 +51,23 @@ class BfcDbGetter extends GetterAbstract {
     async cacheUploads() {
         logger.info('start caching uploads')
 
+        let day_temp: Dayjs
+
+        const meta = await this.metaCollection.collection.findOne({ key: META_KEY_BFC_DB_REWARDS })
+        if (meta === null) {
+            day_temp = dayjs(FIRST_DAY)
+        } else if (meta.success === false) {
+            day_temp = dayjs(FIRST_DAY)
+            logger.info('Re-cache all uploads')
+        } else {
+            day_temp = dayjs(FIRST_DAY)
+            const most_recent_doc =
+                await this.uploadCollection.collection.find({}, { projection: { date: 1 } }).sort({ date: -1 }).limit(1).next()
+            day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
+        }
+
         const most_recent_doc = await this.uploadCollection.collection.find().sort({ date: -1 }).limit(1).next()
-        let day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
+        day_temp = most_recent_doc?.date ? dayjs(most_recent_doc.date) : dayjs(FIRST_DAY)
 
         const next_day = dayjs().add(1, 'day')
         while (day_temp.isBefore(next_day, 'day')) {
