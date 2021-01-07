@@ -23,19 +23,24 @@ class BfcDbGetter extends GetterAbstract {
             await this.cacheUploads()
             await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_DB_REWARDS }, {
                 $set: {
-                    key: META_KEY_BFC_DB_REWARDS,
                     success: true
                 }
             }, { upsert: true })
         } catch (e) {
-            logger.error('Cannot cache uploads')
+            logger.error('Error when caching uploads')
             logger.error(e)
+            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_DB_REWARDS }, {
+                $set: {
+                    success: false
+                }
+            }, { upsert: true })
             return
         }
+
         try {
             await this.cacheFilesInfo()
         } catch (e) {
-            logger.error('Cannot cache files info')
+            logger.error('Error when caching files info')
             logger.error(e)
         }
     }
@@ -108,17 +113,15 @@ class BfcDbGetter extends GetterAbstract {
     async cacheFilesInfo() {
         logger.info('Start caching files info')
         const filesToCache = this.uploadCollection.collection.find({ info: { $exists: false } })
+        const bulk = this.uploadCollection.collection.initializeUnorderedBulkOp()
         while (await filesToCache.hasNext()) {
             const { fileid, field } = (await filesToCache.next())!
             const fileInfoResponse: Getter.BfcDbFileInfoResponse = await (await fetch(`${Env.bfcDb}/field/${field}/file/${fileid}`)).json()
 
             const info = fileInfoResponse.data
-            await this.uploadCollection.collection.updateOne({ fileid, field }, {
-                $set: {
-                    info
-                }
-            })
+            bulk.find({ fileid, field }).upsert().updateOne({ $set: { info } })
         }
+        await bulk.execute()
         logger.info('Caching files info success')
     }
 
@@ -146,17 +149,6 @@ class BfcDbGetter extends GetterAbstract {
         return info
     }
 
-    async cacheRewards() {
-
-    }
-
-    async cacheRnTrade() {
-
-    }
-
-    async cacheFnTrade() {
-
-    }
 }
 
 export default BfcDbGetter

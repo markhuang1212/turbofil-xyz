@@ -13,11 +13,15 @@ import LoggerShared from "../LoggerShared";
 dayjs.extend(quarterOfYear)
 dayjs.extend(advancedFormat)
 
+const META_KEY_BFC_TRADE_BLOCKS_AND_TXS = 'bfc-trade-blocks-and-transactions'
+
 const logger = LoggerShared.child({ service: 'GETTER::BFC-TRADE' })
 
 class BfcTradeGetter extends GetterAbstract {
 
     static shared = new BfcTradeGetter()
+
+    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
 
     blockCollection: CollectionAbstract<Getter.BfcBlock> =
         new CollectionAbstract(MongoClientShared, 'bfc-trade', 'blocks')
@@ -38,9 +42,19 @@ class BfcTradeGetter extends GetterAbstract {
     async task() {
         try {
             await this.cacheBlocksAndTransactions()
+            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_TRADE_BLOCKS_AND_TXS }, {
+                $set: {
+                    success: true
+                }
+            }, { upsert: true })
         } catch (e) {
             logger.error('error when getting BFC blocks and transactions')
             logger.error(e)
+            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_TRADE_BLOCKS_AND_TXS }, {
+                $set: {
+                    success: false
+                }
+            }, { upsert: true })
         }
     }
 

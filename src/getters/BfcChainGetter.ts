@@ -24,15 +24,15 @@ class BfcChainGetter extends GetterAbstract {
             await this.cacheRewards()
             await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_CHAIN_REWARDS }, {
                 $set: {
-                    key: META_KEY_BFC_CHAIN_REWARDS,
                     success: true
                 }
             }, { upsert: true })
         } catch (e) {
-            await this.metaCollection.collection.insertOne({
-                key: META_KEY_BFC_CHAIN_REWARDS,
-                success: false
-            })
+            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_CHAIN_REWARDS }, {
+                $set: {
+                    success: false
+                }
+            }, { upsert: true })
             logger.error('Error when caching rewards')
             logger.debug(e)
         }
