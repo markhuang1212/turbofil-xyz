@@ -462,6 +462,12 @@ declare namespace Handler {
     type ErcBlockInfoResponse = Getter.ErcBlockInfoResponse
     type ErcTxsResponse = Getter.ErcTxsResponse
     type ErcTxResponse = Getter.ErcTxResponse
+
+    interface ClusterMainResponse {
+        code: 0,
+        msg: 'success',
+        clusterMain: string
+    }
 }
 
 export { Getter, Handler }

@@ -103,4 +103,14 @@ ClusterHandler.get('/fnodes', async (req, res) => {
     }
 })
 
+ClusterHandler.get('/main', (req, res) => {
+    const clusterMain = Env.clusterMain
+    const response: Handler.ClusterMainResponse = {
+        code: 0,
+        msg: 'success',
+        clusterMain
+    }
+    res.json(response)
+})
+
 export default ClusterHandler
