@@ -40,16 +40,14 @@ class ErcGetter extends GetterAbstract {
 
     async cacheBlocks() {
         logger.info('start caching ERC blocks')
-        const currCount = await this.blocksCollection.collection.countDocuments()
-        const start_page = Math.floor(currCount / BUFFER_SIZE) + 1
         const bulk = this.blocksCollection.collection.initializeUnorderedBulkOp()
-        for (let p = start_page; true; p++) {
+        for (let p = 1; true; p++) {
             const response = await (await fetch(`${Env.erc}/blocks?page=${p}&count=${BUFFER_SIZE}&sortOrder=asc`)).json() as Getter.ErcBlocksResponse
             if (response.data.blocks.length == 0)
                 break;
             for (let block of response.data.blocks) {
                 const blockInfoResponse = await (await fetch(`${Env.erc}/blockinfo?height=${block.height}`)).json() as Getter.ErcBlockInfoResponse
-                bulk.find({ height: block.height }).upsert().updateOne({
+                bulk.find({ hash: block.hash }).upsert().updateOne({
                     $set: blockInfoResponse.data.block
                 })
             }
@@ -60,10 +58,8 @@ class ErcGetter extends GetterAbstract {
 
     async cacheTxs() {
         logger.info('start caching ERC txs')
-        const currCount = await this.txsCollection.collection.countDocuments()
-        const start_page = Math.floor(currCount / BUFFER_SIZE) + 1
         const bulk = this.txsCollection.collection.initializeUnorderedBulkOp()
-        for (let p = start_page; true; p++) {
+        for (let p = 1; true; p++) {
             const uri = `${Env.erc}/txs?page=${p}&count=${BUFFER_SIZE}&sortOrder=asc`
             const response = await (await fetch(uri)).json() as Getter.ErcTxsResponse
             if (response.data.txs.length == 0)
