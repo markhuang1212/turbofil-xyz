@@ -26,8 +26,8 @@ ErcHandler.get('/blocks', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`Error when getting TFC-ERC blocks with request ${req.url}`)
-        console.error(e)
+        req.log.error(`Error when getting TFC-ERC blocks with request ${req.url}`)
+        req.log.error(e)
     }
 })
 
@@ -47,8 +47,8 @@ ErcHandler.get('/block', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`Error when getting TFC-ERC block with request ${req.url}`)
-        console.error(e)
+        req.log.error(`Error when getting TFC-ERC block with request ${req.url}`)
+        req.log.error(e)
     }
 })
 
@@ -74,8 +74,8 @@ ErcHandler.get('/transactions', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`Error when getting TFC-ERC blocks with request ${req.url}`)
-        console.error(e)
+        req.log.error(`Error when getting TFC-ERC blocks with request ${req.url}`)
+        req.log.error(e)
     }
 })
 
@@ -96,8 +96,8 @@ ErcHandler.get('/transaction', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`Error when getting TFC-ERC blocks with request ${req.url}`)
-        console.error(e)
+        req.log.error(`Error when getting TFC-ERC blocks with request ${req.url}`)
+        req.log.error(e)
     }
 })
 

@@ -76,7 +76,7 @@ class ClusterGetter extends GetterAbstract {
             const response = await fetch(fetch_uri)
             const responseJson = await response.json()
             this.clusterOverviews.set(cluster, responseJson)
-            logger.info({ cluster, uri }, 'Caching success')
+            logger.info({ uri }, `Caching overview for cluster ${cluster} success`)
         } catch (e) {
             logger.info({ uri }, `Cannot cache overview for cluster ${cluster}`)
         }

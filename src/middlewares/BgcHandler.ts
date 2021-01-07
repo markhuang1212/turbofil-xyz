@@ -18,8 +18,8 @@ BgcHandler.get('/blocks', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when getting BGC blocks with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting BGC blocks with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -36,8 +36,8 @@ BgcHandler.get('/blockHeight', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when getting BGC blockHeight with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting BGC blockHeight with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })

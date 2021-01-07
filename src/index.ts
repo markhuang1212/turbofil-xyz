@@ -18,9 +18,13 @@ import ErcGetter from './getters/ErcGetter'
 import ErcHandler from './middlewares/ErcHandler'
 import http from 'http'
 import LoggerShared from './LoggerShared'
+import ExpressPinoLogger from 'express-pino-logger'
 
 let app!: Express
 let server: http.Server
+let expressPinoLogger = ExpressPinoLogger({
+    logger: LoggerShared
+})
 
 const start = async () => {
     await MongoClientShared.connect()
@@ -47,8 +51,9 @@ const start = async () => {
         exposedHeaders: ['X-Total-Count']
     }))
 
-    app.use('/bgc', BgcHandler)
+    app.use(expressPinoLogger)
 
+    app.use('/bgc', BgcHandler)
     app.use(['/clusters', '/cluster'], ClusterHandler)
     app.use('/bfc', BfcTradeHandler)
     app.use('/bfcDb', BfcDbHandler)

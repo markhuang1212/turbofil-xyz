@@ -15,8 +15,8 @@ ClusterHandler.get('/', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`request for /clusters failed with error.`)
-        console.error(e)
+        req.log.error(`request for /clusters failed with error.`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -66,8 +66,8 @@ ClusterHandler.get('/rnodes', async (req, res) => {
         res.json(response)
 
     } catch (e) {
-        console.error(`request for rnode ${req.url} failed with error.`)
-        console.error(e)
+        req.log.error(`request for rnode ${req.url} failed with error.`)
+        req.log.error(e)
         res.status(500).end()
     }
 
@@ -97,8 +97,8 @@ ClusterHandler.get('/fnodes', async (req, res) => {
         res.json(response)
 
     } catch (e) {
-        console.error(`error when getting fnodes with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting fnodes with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })

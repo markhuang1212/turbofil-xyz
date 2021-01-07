@@ -23,8 +23,8 @@ BfcChainHandler.get('/rewards', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when getting BFC rewards with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting BFC rewards with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -42,8 +42,8 @@ BfcChainHandler.get('/rnTrade', async (req, res) => {
         res.json(res_remote)
 
     } catch (e) {
-        console.error(`error when /bfcDb/rnTrade with uri ${req.url}`)
-        console.error(e)
+        req.log.error(`error when /bfcDb/rnTrade with uri ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -62,8 +62,8 @@ BfcChainHandler.get('/fnTrade', async (req, res) => {
         res.json(res_remote)
 
     } catch (e) {
-        console.error(`error when /bfcDb/fnTrade with uri ${req.url}`)
-        console.error(e)
+        req.log.error(`error when /bfcDb/fnTrade with uri ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })

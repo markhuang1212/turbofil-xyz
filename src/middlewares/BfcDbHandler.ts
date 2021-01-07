@@ -23,14 +23,14 @@ BfcDbHandler.get('/uploads', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when getting Bfc-db uploads with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting Bfc-db uploads with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
 
 BfcDbHandler.get('/rewards', async (req, res) => {
-    console.log('/bfcDb/rewards not implemented.')
+    req.log.info('/bfcDb/rewards not implemented.')
     res.status(500).end()
 })
 
@@ -50,8 +50,8 @@ BfcDbHandler.get('/fileInfo', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when getting Bfc-db file info with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting Bfc-db file info with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -71,8 +71,8 @@ BfcDbHandler.get('/rnTrade', async (req, res) => {
 
 
     } catch (e) {
-        console.error(`error when /bfcDb/rnTrade with uri ${req.url}`)
-        console.error(e)
+        req.log.error(`error when /bfcDb/rnTrade with uri ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -92,8 +92,8 @@ BfcDbHandler.get('/fnTrade', async (req, res) => {
         res.json(res_remote)
 
     } catch (e) {
-        console.error(`error when /bfcDb/fnTrade with uri ${req.url}`)
-        console.error(e)
+        req.log.error(`error when /bfcDb/fnTrade with uri ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })

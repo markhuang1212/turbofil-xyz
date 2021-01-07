@@ -22,8 +22,8 @@ BfcTradeHandler.get('/blocks', async (req, res) => {
         res.json(response)
 
     } catch (e) {
-        console.error(`error when fetching blocks with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when fetching blocks with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -45,8 +45,8 @@ BfcTradeHandler.get('/block', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when fetching block with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when fetching block with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -71,8 +71,8 @@ BfcTradeHandler.get('/transactions', async (req, res) => {
         res.json(response)
 
     } catch (e) {
-        console.error(`error when fetching transactions with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when fetching transactions with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -96,8 +96,8 @@ BfcTradeHandler.get('/transaction', async (req, res) => {
         res.json(response)
 
     } catch (e) {
-        console.error(`error when fetching transaction with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when fetching transaction with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -118,8 +118,8 @@ BfcTradeHandler.get('/getLineChartData', async (req, res) => {
         res.json(response)
 
     } catch (e) {
-        console.error(`error when getting Bfc LineChartData with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting Bfc LineChartData with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })

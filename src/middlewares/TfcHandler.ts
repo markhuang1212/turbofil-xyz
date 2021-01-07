@@ -18,8 +18,8 @@ TfcHandler.get('/blocks', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when getting TFC blocks with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting TFC blocks with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -39,8 +39,8 @@ TfcHandler.get('/transactions', async (req, res) => {
         res.setHeader('X-Total-Count', await TfcGetter.shared.getTxCount())
         res.json(response)
     } catch (e) {
-        console.error(`error when getting TFC transactions with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting TFC transactions with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
@@ -57,8 +57,8 @@ TfcHandler.get('/blockHeight', async (req, res) => {
         }
         res.json(response)
     } catch (e) {
-        console.error(`error when getting tfc blockHeight with request ${req.url}`)
-        console.error(e)
+        req.log.error(`error when getting tfc blockHeight with request ${req.url}`)
+        req.log.error(e)
         res.status(500).end()
     }
 })
