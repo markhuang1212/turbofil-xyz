@@ -57,7 +57,7 @@ BfcChainHandler.get('/fnTrade', async (req, res) => {
         if (typeof afid !== 'string' || typeof date !== 'string' || typeof rnid !== 'string')
             throw Error('Invalid argument')
 
-        const url = `${Env.bfcDb}/afids/${afid}/rns/${rnid}/fns?date=${date}`
+        const url = `${Env.bfcChain}/afids/${afid}/rns/${rnid}/fns?date=${date}`
         const res_remote = await (await fetch(url)).json()
         res.json(res_remote)
 
