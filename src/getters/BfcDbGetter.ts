@@ -17,8 +17,12 @@ class BfcDbGetter extends GetterAbstract {
     static shared = new BfcDbGetter()
 
     metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
+    isCaching = false
 
     async task() {
+        if (this.isCaching)
+            return
+        this.isCaching = true
         try {
             await this.cacheUploads()
             await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_DB_REWARDS }, {
@@ -34,6 +38,7 @@ class BfcDbGetter extends GetterAbstract {
                     success: false
                 }
             }, { upsert: true })
+            this.isCaching = false
             return
         }
 
@@ -43,6 +48,7 @@ class BfcDbGetter extends GetterAbstract {
             logger.error('Error when caching files info')
             logger.error(e)
         }
+        this.isCaching = false
     }
 
     initialize() {
@@ -113,6 +119,7 @@ class BfcDbGetter extends GetterAbstract {
     async cacheFilesInfo() {
         logger.info('Start caching files info')
         const filesToCache = this.uploadCollection.collection.find({ info: { $exists: false } })
+            .addCursorFlag('noCursorTimeout', true)
         if (await filesToCache.hasNext() === false) {
             logger.info('Caching files info success (Nothing to cache)')
             return;
@@ -123,7 +130,7 @@ class BfcDbGetter extends GetterAbstract {
             const fileInfoResponse: Getter.BfcDbFileInfoResponse = await (await fetch(`${Env.bfcDb}/field/${field}/file/${fileid}`)).json()
 
             const info = fileInfoResponse.data
-            bulk.find({ fileid, field }).upsert().updateOne({ $set: { info } })
+            bulk.find({ fileid, field }).updateOne({ $set: { info } })
         }
         await bulk.execute()
         logger.info('Caching files info success')
