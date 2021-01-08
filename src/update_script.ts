@@ -15,7 +15,8 @@ colors.enable()
  */
 const versions: [string, () => void][] = [
     ['1.1.1', () => { }],
-    ['1.1.2', nothingToUpdate('1.1.1', '1.1.2')]
+    ['1.1.2', nothingToUpdate('1.1.1', '1.1.2')],
+    ['1.1.3', nothingToUpdate('1.1.2', '1.1.3')]
 ]
 
 function update(from: string, to: string) {
