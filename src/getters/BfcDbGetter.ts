@@ -45,7 +45,7 @@ class BfcDbGetter extends GetterAbstract {
         try {
             await this.cacheFilesInfo()
         } catch (e) {
-            logger.error('Error when caching files info')
+            logger.error('Fatal Error when caching files info')
             logger.error(e)
         }
         this.isCaching = false
@@ -117,6 +117,7 @@ class BfcDbGetter extends GetterAbstract {
     }
 
     async cacheFilesInfo() {
+        let hasError = false
         logger.info('Start caching files info')
         const filesToCache = this.uploadCollection.collection.find({ info: { $exists: false } })
             .addCursorFlag('noCursorTimeout', true)
@@ -125,15 +126,26 @@ class BfcDbGetter extends GetterAbstract {
             return;
         }
         const bulk = this.uploadCollection.collection.initializeUnorderedBulkOp()
-        while (await filesToCache.hasNext()) {
-            const { fileid, field } = (await filesToCache.next())!
-            const fileInfoResponse: Getter.BfcDbFileInfoResponse = await (await fetch(`${Env.bfcDb}/field/${field}/file/${fileid}`)).json()
+        for (let i = 0; await filesToCache.hasNext(); i++) {
+            if (i % 1000 === 0 && bulk.length > 0) {
+                await bulk.execute() // execute every 1000 operations
+                logger.info('file info: Bulk Operation committed')
+            }
 
+            const { fileid, field } = (await filesToCache.next())!
+            let fileInfoResponse: Getter.BfcDbFileInfoResponse
+            try {
+                fileInfoResponse = await (await fetch(`${Env.bfcDb}/field/${field}/file/${fileid}`)).json()
+            } catch {
+                hasError = true
+                logger.info({ fileid }, `File info caching error. Non-fatal. Continuing`)
+                continue
+            }
             const info = fileInfoResponse.data
             bulk.find({ fileid, field }).updateOne({ $set: { info } })
         }
         await bulk.execute()
-        logger.info('Caching files info success')
+        logger.info('Caching files info success ' + hasError ? 'with non-fatal errors' : '')
     }
 
     async getUploads(page: number, count: number, date: string) {
