@@ -4,7 +4,7 @@ import GetterAbstract from "./GetterAbstract";
 import dayjs, { Dayjs } from 'dayjs'
 import fetch from 'node-fetch'
 import Env from '../env.json'
-import { Getter } from "../Types";
+import { Getter, Handler } from "../Types";
 import LoggerShared from "../LoggerShared";
 
 const FIRST_DAY = '20200701'
@@ -55,9 +55,13 @@ class BfcDbGetter extends GetterAbstract {
         this.uploadCollection.collection.createIndex({ field: 1, fileid: 1 })
         this.uploadCollection.collection.createIndex({ fileid: 1 })
         this.uploadCollection.collection.createIndex({ date: 1 })
+        this.tradeCollection.collection.createIndex({ field: 1, afid: 1, date: 1 })
+        // this.tradeCollection.collection.createIndex({ 'rns.rnid': 1 })
+        // this.tradeCollection.collection.createIndex({ 'rns.fns.fnid': 1 })
     }
 
     uploadCollection = new CollectionAbstract<Getter.BfcDbUpload>(MongoClientShared, 'bfc-db', 'uploads')
+    tradeCollection = new CollectionAbstract<Getter.BfcDbTrade>(MongoClientShared, 'bfc-db', 'trade')
 
     async cacheUploads() {
         logger.info('start caching uploads')
@@ -170,6 +174,91 @@ class BfcDbGetter extends GetterAbstract {
         const upload = await this.uploadCollection.collection.findOne({ field, fileid: afid })
         const info = upload?.info
         return info
+    }
+
+    async lazyCacheRnTrade(field: string, afid: string, date: string) {
+        if (dayjs(date, 'YYYYMMDD').isValid() === false)
+            throw Error('Invalid argument: date')
+        /** Argument checking complete. */
+
+        const doc = await this.tradeCollection.collection.findOne({
+            field,
+            afid,
+            date: dayjs(date, 'YYYYMMDD').toDate()
+        }, {
+            projection: { 'rns.fns': 0 }
+        })
+
+        if (doc !== null) {
+            return doc.rns as Handler.BfcDbRnTradeResponse['data']
+        }
+
+        const url = `${Env.bfcDb}/field/${field}/file/${afid}/rns?date=${date}`
+        const res_remote = await (await fetch(url)).json() as Getter.BfcDbRnTradeResponse
+
+        if (res_remote.code !== 0 || res_remote.data.length === 0) {
+            return []
+        }
+
+        await this.tradeCollection.collection.insertOne({
+            field,
+            afid,
+            date: dayjs(date, 'YYYYMMDD').toDate(),
+            rns: res_remote.data
+        })
+
+        return res_remote.data
+    }
+
+    async lazyCacheFnTrade(field: string, afid: string, date: string, rnid: string) {
+        if (dayjs(date, 'YYYYMMDD').isValid() === false)
+            throw Error('Invalid argument: date')
+        /** Argument checking complete. */
+
+        const doc = await this.tradeCollection.collection.findOne({
+            field,
+            afid,
+            date: dayjs(date, 'YYYYMMDD').toDate()
+        }, {
+            projection: {
+                rns: {
+                    $elemMatch: {
+                        rnid
+                    }
+                }
+            }
+        }) // rns should contains 0 or 1 elements.
+
+        if (doc === null) {
+            return [] // this situation practically won't happen in front-end.
+        }
+
+        if (doc.rns.length === 0) {
+            return [] // no rnode
+        }
+
+        if (doc.rns[0].fns) {
+            return doc.rns[0].fns
+        }
+
+        const fn_url = `${Env.bfcDb}/${field}/${afid}/rns/${rnid}/fns?date=${date}`
+        const fn_res_remote = await (await fetch(fn_url)).json() as Getter.BfcDbFnTradeResponse
+        if (fn_res_remote.code !== 0 || fn_res_remote.data.length === 0) {
+            return []
+        }
+
+        await this.tradeCollection.collection.updateOne({
+            field, afid,
+            date: dayjs(date, 'YYYYMMDD').toDate(),
+            'rns.rnid': rnid
+        }, {
+            $set: {
+                'rns.$.fns': fn_res_remote.data
+            }
+        })
+
+        return fn_res_remote.data
+
     }
 
 }

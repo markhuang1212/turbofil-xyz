@@ -138,6 +138,14 @@ class BfcChainGetter extends GetterAbstract {
         return this.rewardCollection.collection.countDocuments({ date: data_d })
     }
 
+    async lazyCacheRnTrade(afid: string, date: string) {
+
+    }
+
+    async lazyCacheFnTrade(afid: string, fnid: string, date: string) {
+
+    }
+
 }
 
 export default BfcChainGetter

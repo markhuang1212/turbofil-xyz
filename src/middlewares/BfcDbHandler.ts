@@ -65,10 +65,13 @@ BfcDbHandler.get('/rnTrade', async (req, res) => {
         if (typeof field !== 'string' || typeof afid !== 'string' || typeof date !== 'string')
             throw Error('Invalid argument')
 
-        const url = `${Env.bfcDb}/field/${field}/file/${afid}/rns?date=${date}`
-        const res_remote = await (await fetch(url)).json()
-        res.json(res_remote)
-
+        const data = await BfcDbGetter.shared.lazyCacheRnTrade(field, afid, date)
+        const response: Handler.BfcDbRnTradeResponse = {
+            code: 0,
+            msg: 'success',
+            data
+        }
+        res.json(response)
 
     } catch (e) {
         req.log.error(`error when /bfcDb/rnTrade with uri ${req.url}`)
@@ -87,9 +90,17 @@ BfcDbHandler.get('/fnTrade', async (req, res) => {
         if (typeof field !== 'string' || typeof afid !== 'string' || typeof date !== 'string' || typeof rnid !== 'string')
             throw Error('Invalid argument')
 
-        const url = `${Env.bfcDb}/${field}/${afid}/rns/${rnid}/fns?date=${date}`
-        const res_remote = await (await fetch(url)).json()
-        res.json(res_remote)
+        // const url = `${Env.bfcDb}/${field}/${afid}/rns/${rnid}/fns?date=${date}`
+        // const res_remote = await (await fetch(url)).json()
+        // res.json(res_remote)
+
+        const data = await BfcDbGetter.shared.lazyCacheFnTrade(field, afid, date, rnid)
+        const response: Handler.BfcDbFnTradeResponse = {
+            code: 0,
+            data,
+            msg: 'success'
+        }
+        res.json(response)
 
     } catch (e) {
         req.log.error(`error when /bfcDb/fnTrade with uri ${req.url}`)

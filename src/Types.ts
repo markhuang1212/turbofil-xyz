@@ -301,6 +301,68 @@ declare namespace Getter {
         [key: string]: string
     }
 
+    interface BfcDbRnTradeResponse {
+        code: 0
+        msg: 'success'
+        data: {
+            fee: number
+            rnid: string
+            rnAddr: string
+        }[]
+    }
+
+    interface BfcChainRnTradeResponse {
+        code: 0
+        msg: 'success'
+        data: {
+            rns: string[]
+        }
+    }
+
+    interface BfcDbFnTradeResponse {
+        code: 0
+        msg: 'success'
+        data: {
+            fnid: string
+            fnAddr: string
+            fee: number
+        }[]
+    }
+
+    interface BfcChainFnTradeResponse {
+        code: 0
+        data: {
+            fns: string[]
+            fee: number
+        }
+    }
+
+    interface BfcDbTrade {
+        field: string
+        afid: string
+        date: Date
+        rns: {
+            fee: number
+            rnid: string
+            rnAddr: string
+            fns?: {
+                fnid: string
+                fnAddr: string
+                fee: number
+            }[]
+        }[]
+    }
+
+    interface BfcChainTrade {
+        afid: string
+        date: Date
+        rns: {
+            rnid: string
+            fee: number
+            fnFee: number
+            fns: string[]
+        }
+    }
 }
 
 declare namespace Handler {
@@ -468,6 +530,11 @@ declare namespace Handler {
         msg: 'success',
         clusterMain: string
     }
+
+    type BfcDbRnTradeResponse = Getter.BfcDbRnTradeResponse
+    type BfcDbFnTradeResponse = Getter.BfcDbFnTradeResponse
+    type BfcChainFnTradeResponse = Getter.BfcChainFnTradeResponse
+    type BfcChainRnTradeResponse = Getter.BfcChainRnTradeResponse
 }
 
 export { Getter, Handler }
