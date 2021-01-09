@@ -18,6 +18,7 @@ class BfcChainGetter extends GetterAbstract {
 
     rewardCollection = new CollectionAbstract<Getter.BfcChainReward>(MongoClientShared, 'bfc-chain', 'rewards')
     metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
+    tradeCollection = new CollectionAbstract<Getter.BfcChainTrade>(MongoClientShared, 'bfc-chain', 'trade')
 
     async task() {
         try {
@@ -139,11 +140,88 @@ class BfcChainGetter extends GetterAbstract {
     }
 
     async lazyCacheRnTrade(afid: string, date: string) {
+        if (dayjs(date, 'YYYYMMDD').isValid() === false)
+            throw Error(`Invalid date string ${date}`)
+        /** Argument checking ends */
 
+        const doc = await this.tradeCollection.collection.findOne({
+            afid,
+            date: dayjs(date, 'YYYYMMDD').toDate()
+        })
+
+        if (doc !== null) {
+            return {
+                rns: doc.rns.map(v => v.rnid),
+                fee: doc.rnFee
+            }
+        }
+
+        const url = `${Env.bfcChain}/afids/${afid}/rns?date=${date}`
+        const res_remote = await (await fetch(url)).json() as Getter.BfcChainRnTradeResponse
+
+        await this.tradeCollection.collection.insertOne({
+            afid,
+            date: dayjs(date, 'YYYYMMDD').toDate(),
+            rnFee: res_remote.data.fee,
+            rns: res_remote.data.rns.map(v => ({
+                rnid: v
+            }))
+        })
+
+        return res_remote.data
     }
 
-    async lazyCacheFnTrade(afid: string, fnid: string, date: string) {
+    async lazyCacheFnTrade(afid: string, rnid: string, date: string) {
+        if (dayjs(date, 'YYYYMMDD').isValid() === false)
+            throw Error(`Invalid date string ${date}`)
+        /** Argument checking ends */
 
+        const doc = await this.tradeCollection.collection.findOne({
+            afid, date: dayjs(date, 'YYYYMMDD').toDate(),
+        }, {
+            projection: {
+                rns: {
+                    $elemMatch: {
+                        rnid
+                    }
+                }
+            }
+        })
+
+        if (doc === null)
+            return {
+                fns: [],
+                fee: 0
+            } // should not happen.
+
+        if (doc.rns.length === 0)
+            return {
+                fns: [],
+                fee: 0
+            } // no rnode
+
+        if (doc.rns[0].fns) {
+            return {
+                fns: doc.rns[0].fns!,
+                fee: doc.rns[0].fnFee!
+            }
+        }
+
+        const url = `${Env.bfcChain}/afids/${afid}/rns/${rnid}/fns?date=${date}`
+        const res_remote = await (await fetch(url)).json() as Getter.BfcChainFnTradeResponse
+
+        await this.tradeCollection.collection.updateOne({
+            afid, 
+            date: dayjs(date, 'YYYYMMDD').toDate(),
+            'rns.rnid': rnid
+        }, {
+            $set: {
+                'rns.$.fns': res_remote.data.fns,
+                'rns.$.fnFee': res_remote.data.fee
+            }
+        })
+
+        return res_remote.data
     }
 
 }

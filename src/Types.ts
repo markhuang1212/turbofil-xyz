@@ -315,6 +315,7 @@ declare namespace Getter {
         code: 0
         msg: 'success'
         data: {
+            fee: number
             rns: string[]
         }
     }
@@ -335,6 +336,7 @@ declare namespace Getter {
             fns: string[]
             fee: number
         }
+        msg: 'success'
     }
 
     interface BfcDbTrade {
@@ -356,12 +358,12 @@ declare namespace Getter {
     interface BfcChainTrade {
         afid: string
         date: Date
+        rnFee: number
         rns: {
             rnid: string
-            fee: number
-            fnFee: number
-            fns: string[]
-        }
+            fnFee?: number
+            fns?: string[]
+        }[]
     }
 }
 

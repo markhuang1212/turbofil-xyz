@@ -178,7 +178,7 @@ class BfcDbGetter extends GetterAbstract {
 
     async lazyCacheRnTrade(field: string, afid: string, date: string) {
         if (dayjs(date, 'YYYYMMDD').isValid() === false)
-            throw Error('Invalid argument: date')
+            throw Error(`Invalid date string ${date}`)
         /** Argument checking complete. */
 
         const doc = await this.tradeCollection.collection.findOne({
@@ -212,7 +212,7 @@ class BfcDbGetter extends GetterAbstract {
 
     async lazyCacheFnTrade(field: string, afid: string, date: string, rnid: string) {
         if (dayjs(date, 'YYYYMMDD').isValid() === false)
-            throw Error('Invalid argument: date')
+            throw Error(`Invalid date string ${date}`)
         /** Argument checking complete. */
 
         const doc = await this.tradeCollection.collection.findOne({
@@ -241,9 +241,9 @@ class BfcDbGetter extends GetterAbstract {
             return doc.rns[0].fns
         }
 
-        const fn_url = `${Env.bfcDb}/${field}/${afid}/rns/${rnid}/fns?date=${date}`
-        const fn_res_remote = await (await fetch(fn_url)).json() as Getter.BfcDbFnTradeResponse
-        if (fn_res_remote.code !== 0 || fn_res_remote.data.length === 0) {
+        const url = `${Env.bfcDb}/${field}/${afid}/rns/${rnid}/fns?date=${date}`
+        const res_remote = await (await fetch(url)).json() as Getter.BfcDbFnTradeResponse
+        if (res_remote.code !== 0 || res_remote.data.length === 0) {
             return []
         }
 
@@ -253,11 +253,11 @@ class BfcDbGetter extends GetterAbstract {
             'rns.rnid': rnid
         }, {
             $set: {
-                'rns.$.fns': fn_res_remote.data
+                'rns.$.fns': res_remote.data
             }
         })
 
-        return fn_res_remote.data
+        return res_remote.data
 
     }
 
