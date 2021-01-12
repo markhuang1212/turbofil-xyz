@@ -7,6 +7,9 @@ import CollectionAbstract from "./CollectionAbstract";
 import Env from '../env.json'
 import LoggerShared from "../LoggerShared";
 
+/**
+ * The backend fetch data starting from FIRST_DAY
+ */
 const FIRST_DAY = '20200701'
 
 const logger = LoggerShared.child({ service: 'GETTER::BFC-CHAIN' })

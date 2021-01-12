@@ -24,10 +24,18 @@ import path from 'path'
 
 let app!: Express
 let server: http.Server
+
+/**
+ * This object is used for logging for Middlewares.
+ * It inherit properties of ./LoggerShared.ts
+ */
 let expressPinoLogger = ExpressPinoLogger({
     logger: LoggerShared
 })
 
+/**
+ * Display information in the shell in production mode
+ */
 if (process.env.NODE_ENV !== "development") {
     console.log('Turbofil-xyz backend start running. Logs is stored in ./logs.')
     console.log('To view the formatted logs, run "cat logs/file.log | npx pino-pretty"')
@@ -35,10 +43,20 @@ if (process.env.NODE_ENV !== "development") {
 
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf-8'))
 
+/**
+ * This async function is called later.
+ */
 const start = async () => {
+    /**
+     * Mongodb needs to be connected before any requests is made.
+     */
     await MongoClientShared.connect()
     LoggerShared.info('Mongo Client Connected.')
 
+    /**
+     * See Getter's task() and initialize() for details.
+     * These functions are async.
+     */
     ClusterGetter.shared.initialize()
     ClusterGetter.shared.task()
     BfcTradeGetter.shared.initialize()
@@ -56,10 +74,16 @@ const start = async () => {
 
     app = express()
 
+    /**
+     * X-Total-Count header is needed for some front-end requests
+     */
     app.use(cors({
         exposedHeaders: ['X-Total-Count']
     }))
 
+    /**
+     * Load Logger for Middlewares
+     */
     app.use(expressPinoLogger)
 
     app.use('/bgc', BgcHandler)
@@ -70,6 +94,7 @@ const start = async () => {
     app.use('/tfc', TfcHandler)
     app.use('/erc', ErcHandler)
 
+    /** GET Backend versions */
     app.get('/version', (req, res) => res.json({
         version: packageJson.version
     }))
@@ -80,35 +105,34 @@ const start = async () => {
 
 }
 
-declare module 'http' {
-    interface Server {
-        closeAsync: () => Promise<void>
-    }
-}
-
-http.Server.prototype.closeAsync = function () {
-    return new Promise((res, rej) => {
-        this.close(err => {
-            if (err)
-                rej(err)
-            res()
-        })
-    })
-}
-
+/**
+ * Start the server
+ */
 start()
 
+/**
+ * Cleanup the server when receiving SIGTERM. It
+ * 
+ * 1. Close the http server
+ * 2. Wait for all mongodb jobs to finish
+ */
 process.on('SIGTERM', () => {
     console.log('Cleaning up...')
-    Promise.all([
-        server.closeAsync().then(() => console.log('HTTP Server closed.')),
-        MongoClientShared.close(false).then(() => console.log('Mongo Client closed.'))
-    ]).then(() => {
-        console.log('Exiting...')
-        process.exit(0)
-    }).catch(e => {
-        console.log('Exit with error.')
-        console.log(e)
-        process.exit(0)
+    server.close(err => {
+        if (err) {
+            console.error('HTTP server closed with error')
+            console.error(err)
+        } else {
+            console.log('HTTP Server closed')
+        }
+        MongoClientShared.close().then(() => {
+            console.log('Mongo Client closed')
+        }).catch(err => {
+            console.error('Mongo Client closed with error')
+            console.error(err)
+        }).finally(() => {
+            process.exit(0)
+        })
+
     })
 })

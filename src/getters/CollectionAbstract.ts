@@ -1,6 +1,9 @@
 import { Collection, MongoClient } from "mongodb";
 import MongoClientShared from "../MongoClientShared";
 
+/**
+ * The object that wraps a mongodb Collection.
+ */
 class CollectionAbstract<T>{
 
     client: MongoClient

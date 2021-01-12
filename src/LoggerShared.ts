@@ -10,6 +10,12 @@ const logMode = process.env.NODE_ENV === "development" ? 'development' : 'produc
 if (fs.existsSync(path.join(__dirname, '../logs')) === false)
     fs.mkdirSync(path.join(__dirname, '../logs'))
 
+
+/**
+ * All logging is done by the LoggerShared.
+ * It sets the logging mode and logging destination
+ * according to the environment variable NODE_NEV
+ */
 const LoggerShared = pino({
     level: logMode === 'development' ? 'trace' : 'info'
 }, logMode == 'production' ? pino.destination({

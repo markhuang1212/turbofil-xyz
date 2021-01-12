@@ -1,8 +1,6 @@
 import { Router } from "express";
 import BfcChainGetter from "../getters/BfcChainGetter";
 import { Handler } from "../Types";
-import Env from '../env.json'
-import fetch from 'node-fetch'
 
 const BfcChainHandler = Router()
 
@@ -37,9 +35,6 @@ BfcChainHandler.get('/rnTrade', async (req, res) => {
         if (typeof date !== 'string' || typeof afid !== 'string')
             throw Error('Invalid argument')
 
-        // const url = `${Env.bfcChain}/afids/${afid}/rns?date=${date}`
-        // const res_remote = await (await fetch(url)).json()
-        // res.json(res_remote)
         const data = await BfcChainGetter.shared.lazyCacheRnTrade(afid, date)
         const result: Handler.BfcChainRnTradeResponse = {
             code: 0,
@@ -63,10 +58,6 @@ BfcChainHandler.get('/fnTrade', async (req, res) => {
 
         if (typeof afid !== 'string' || typeof date !== 'string' || typeof rnid !== 'string')
             throw Error('Invalid argument')
-
-        // const url = `${Env.bfcChain}/afids/${afid}/rns/${rnid}/fns?date=${date}`
-        // const res_remote = await (await fetch(url)).json()
-        // res.json(res_remote)
 
         const data = await BfcChainGetter.shared.lazyCacheFnTrade(afid, rnid, date)
         const result: Handler.BfcChainFnTradeResponse = {

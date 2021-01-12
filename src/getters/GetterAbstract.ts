@@ -1,12 +1,13 @@
 import Env from '../env.json'
 
 /**
- * An GetterAbstract instance is the underlying
- * class that is responsible for fetching, caching
- * some APIs.
+ * The object that is inherited by all Getters
  */
 abstract class GetterAbstract {
 
+    /**
+     * Execute task() periodically
+     */
     periodic() {
         setInterval(() => {
             this.task()
@@ -17,7 +18,13 @@ abstract class GetterAbstract {
         this.periodic()
     }
 
+    /** Any tasks that should be run periodically */
     abstract task(): any
+
+    /** 
+     * Any tasks that should be run once.
+     * For example, create MongoDB Indexes.
+     */
     abstract initialize(): any
 }
 

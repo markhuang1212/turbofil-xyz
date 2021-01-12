@@ -1,14 +1,18 @@
 declare namespace Getter {
 
+    /**
+     * Store whether the fetching is success for a specific resource.
+     * If success === false, the corresponding Getter will either refetch
+     * all the resources or perform some other types of fixing.
+     */
     interface DBMetaData {
         key: string
         success: boolean
     }
 
-    interface DBCachedObject {
-        cached_success: boolean
-    }
-
+    /**
+     * Used by ClusterGetter.
+     */
     interface RNode {
         rn_id: string
         runStatus: boolean
