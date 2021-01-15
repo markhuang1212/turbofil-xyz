@@ -1,18 +1,16 @@
+
+/**
+ * In Namespace Getter,
+ * Types that ends with "Response" is a response sent by the upstream servers
+ * Types that doesn't ends with "Response" is objects stored in MongoDB.
+ */
 declare namespace Getter {
 
-    /**
-     * Store whether the fetching is success for a specific resource.
-     * If success === false, the corresponding Getter will either refetch
-     * all the resources or perform some other types of fixing.
-     */
     interface DBMetaData {
         key: string
         success: boolean
     }
 
-    /**
-     * Used by ClusterGetter.
-     */
     interface RNode {
         rn_id: string
         runStatus: boolean
@@ -110,7 +108,6 @@ declare namespace Getter {
             }
         }
     }
-
 
     interface BgcBlock {
         header: {
@@ -373,6 +370,9 @@ declare namespace Getter {
 
 declare namespace Handler {
 
+    /**
+     * GET /clusters/rnodes?cluster={var}
+     */
     interface RNodeResponse {
         code: 0,
         data: {
@@ -402,6 +402,9 @@ declare namespace Handler {
         }
     }
 
+    /**
+     * GET /clusters/fnodes?cluster={var}&rnode={var}&page={var}&count={var}
+     */
     interface FNodeResponse {
         code: 0 | 1,
         msg: string
@@ -425,6 +428,9 @@ declare namespace Handler {
         }
     }
 
+    /**
+     * GET /bfc/blocks?count={var}&page={var}&sortorder={desc|asc}
+     */
     interface BfcBlocksResponse {
         code: 0
         msg: string
@@ -444,6 +450,9 @@ declare namespace Handler {
         }
     }
 
+    /**
+     * GET /bfc/block?blockhash={var}
+     */
     interface BfcBlockResponse {
         code: 0,
         msg: string
@@ -458,11 +467,24 @@ declare namespace Handler {
         }
     }
 
+    /**
+     * GET /bfcDb/uploads?page={var}&count={var}&date={YYYYMMDD}
+     */
     type BfcDbUploadResponse = Getter.BfcDbUploadResponse
+
+    /**
+     * GET /bfcDb/fileinfo?field={var}&afid={var}
+     */
     type BfcDbFileInfoResponse = Getter.BfcDbFileInfoResponse
 
+    /**
+     * GET /bfcChain/rewards?page={var}&count={var}&date={YYYYMMDD}
+     */
     type BfcChainRewardResponse = Getter.BfcChainRewardResponse
 
+    /**
+     * GET /bfc/transactions?page={var}&count={var}&sortOrder={asc|desc}
+     */
     interface BfcTransactionsResponse {
         code: 0
         msg: string
@@ -479,6 +501,9 @@ declare namespace Handler {
         }
     }
 
+    /**
+     * GET /bfc/transaction?transid={var}
+     */
     interface BfcTransactionResponse {
         code: 0
         msg: string
@@ -498,6 +523,9 @@ declare namespace Handler {
         }
     }
 
+    /**
+     * GET /bfc/getLineChartData?interval={day|week|month|quarter|year}
+     */
     interface BfcLineChartDataResponse {
         code: 0
         msg: string
@@ -510,14 +538,34 @@ declare namespace Handler {
 
     type BfcLineChartInterval = 'day' | 'week' | 'month' | 'quarter' | 'year'
 
+    /**
+     * GET /bgc/blocks?page={var}&count={var}
+     */
     type BgcBlockResponse = Getter.BgcBlockResponse
+
+    /**
+     * GET /bgc/blockHeight
+     */
     type BgcBlockHeightResponse = Getter.BgcBlockHeightResponse
 
+    /**
+     * GET /tfc/blocks?page={var}&count={var}
+     */
     type TfcBlockResponse = Getter.TfcBlockResponse
+
+    /**
+     * GET /tfc/blockHeight
+     */
     type TfcBlockHeightResponse = Getter.TfcBlockHeightResponse
 
+    /**
+     * GET /clusters
+     */
     type ClusterListResponse = Getter.ClusterListResponse
 
+    /**
+     * GET /tfc/transactions?page={var}&count={var}
+     */
     interface TfcTransactionResponse {
         code: 0,
         msg: 'success',
@@ -526,20 +574,53 @@ declare namespace Handler {
         }
     }
 
+    /**
+     * GET /erc/blocks?page={var}&count={var}&sortOrder={asc|desc}
+     */
     type ErcBlocksResponse = Getter.ErcBlocksResponse
+
+    /**
+     * GET /erc/block?height={var}
+     */
     type ErcBlockInfoResponse = Getter.ErcBlockInfoResponse
+
+    /**
+     * GET /erc/transactions?page={var}&count={var}&sortOrder={asc|desc}
+     */
     type ErcTxsResponse = Getter.ErcTxsResponse
+
+    /**
+     * GET /erc/transaction?txid={var}
+     */
     type ErcTxResponse = Getter.ErcTxResponse
 
+    /**
+     * GET /clusters/main
+     */
     interface ClusterMainResponse {
         code: 0,
         msg: 'success',
         clusterMain: string
     }
 
+    /**
+     * GET /bfcDb/rnTrade?field={var}&afid={var}&date={YYYYMMDD}
+     */
     type BfcDbRnTradeResponse = Getter.BfcDbRnTradeResponse
+
+    /**
+     * GET /bfcDb/fnTrade?field={var}&afid={var}&date={var}&rnid={var}
+     */
     type BfcDbFnTradeResponse = Getter.BfcDbFnTradeResponse
+
+    /**
+     * GET /bfcChain/fnTrade?afid={var}&date={YYYYMMDD}&rnid={var}
+     */
     type BfcChainFnTradeResponse = Getter.BfcChainFnTradeResponse
+
+    /**
+     * GET /bfcChain/rnTrade?afid={var}&date={YYYYMMDD}
+     */
     type BfcChainRnTradeResponse = Getter.BfcChainRnTradeResponse
 }
 

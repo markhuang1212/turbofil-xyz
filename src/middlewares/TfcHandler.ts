@@ -4,7 +4,6 @@ import { Handler } from "../Types";
 
 const TfcHandler = Router()
 
-
 TfcHandler.get('/blocks', async (req, res) => {
     try {
         const page = parseInt(req.query.page as string)

@@ -12,7 +12,9 @@ if (fs.existsSync(path.join(__dirname, '../logs')) === false)
 
 
 /**
- * All logging is done by the LoggerShared.
+ * The Pino Logging Library: https://github.com/pinojs/pino
+ * 
+ * All logging is done by the LoggerShared object or its children.
  * It sets the logging mode and logging destination
  * according to the environment variable NODE_NEV
  */
