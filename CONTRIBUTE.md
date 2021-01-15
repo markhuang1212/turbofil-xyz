@@ -15,8 +15,6 @@ This backend provides APIs for the Turbofil-xyz frontend, enables it to obtain C
   
 * `src/env.json`: The configuration files. It mainly contains the urls of the servers that this backend fetch from.
   
-* `src/env.schema.json`: The JSON-Schema for the configuration file. Enables auto-complete, type checking, etc.
-  
 * `src/Types.ts`: All the interface (type declarations). Namespace `Getter` is used by all Getters, and namespace `Handlers` is used by all Middlewares.
   
 * `src/index.ts`: The entry point of the backend. `index.ts` is run when the backend is started.
