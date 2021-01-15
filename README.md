@@ -1,33 +1,53 @@
-# Turbofil-xyz Backend
+# Turbofil-xyz Backend Deployment
 
-## Overview
+## Pre-requisite
 
-This backend provides APIs for the Turbofil-xyz frontend, enables it to obtain Cluster, Trade and Block information efficiently. The backend caches the contents from multiple upstreams on a hourly basis to reduce latency and improve performance. Code is written in NodeJS and caching is done in MongoDB. All source code is stored in the `src` folder. It's structure is as follows.
+* MongoDB v4.4.x Community Version
+* NodeJS v14.x or v15.x
+* NPM
 
+### Install MongoDB
 
-* `src/getters/*`: These objects are responsible for 1) getting the contents from other servers and cache them into the MongoDB database; 2) provide functions to retrieve the cached content.
-* `src/middlewares/*`: These objects are responsible for serving the APIs that this backend provides. The backend uses the framework `ExpressJs`.
-* `src/env.json`: The configuration files. It mainly contains the urls of the servers that this backend fetch from.
-* `src/env.schema.json`: The JSON-Schema for the configuration file. Enables auto-complete, type checking, etc.
-* `src/Types.ts`: All the interface. Namespace `Getter` is used by all Getters, and namespace `Handlers` is used by all Middlewares.
-* `src/index.ts`: The entry point of the backend. `index.ts` is run when the backend is started.
+For Ubuntu 18.04
 
-To read this project, start with `src/index.ts`. All source codes are properly commented. Belows are some additional notes.
+```
+wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
 
-## Getters
+### Install Nodejs
 
-All `Getters` is inherited by `GetterAbstract` class in `src/getters/GetterAbstract.ts`, and all MongoDB collections is wrapped by a `CollectionAbstract` class in `src/getters/CollectionAbstract.ts`
+```
+curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
 
-Each `Getter` have one (and only one) corresponding `Middleware`.
+## Configuration
 
-## Middlewares
+Configurations are in the file `./src/env.json`. In particular,
 
-Each `Middlewares` handles a particular prefix of the request. For example, the `BfcChainHandler` handles all urls that starts with `/bfcChain/`.
+`port`: the port that the backend server runs.
+`jobIntervalSeconds`: How frequent the backend end fetch data. Default: 1 hour.
 
-## MongoDB Client
+## Build
 
-The backend connects to the MongoDB by `MongoClientShared` object in the `src/MongoClientShared.ts`.
+```bash
+npm i
+npm run build
+```
 
-## Logging
+## Start
 
-Logging is done by the `pino` and `pino-http` library. See `src/LoggerShared.ts` for details.
+First, make sure mongodb is running by
+
+```
+sudo systemctl start mongod
+```
+
+Then start the backend by
+
+```bash
+node build/index.js
+```
