@@ -5,8 +5,11 @@ import GetterAbstract from "./GetterAbstract";
 import fetch from 'node-fetch'
 import Env from '../env.json'
 import LoggerShared from "../LoggerShared";
+import MetaGetter from "./MetaGetter";
 
 const BUFFER_SIZE = 100
+const META_KEY_ERC_BLOCKS = 'tfc-erc-blocks'
+const META_KEY_ERC_TXS = 'tfc-erc-transactions'
 const logger = LoggerShared.child({ service: 'GETTER::ERC' })
 
 class ErcGetter extends GetterAbstract {
@@ -15,17 +18,22 @@ class ErcGetter extends GetterAbstract {
 
     blocksCollection = new CollectionAbstract<Getter.ErcBlock>(MongoClientShared, 'tfc-erc', 'blocks')
     txsCollection = new CollectionAbstract<Getter.ErcTransaction>(MongoClientShared, 'tfc-erc', 'txs')
+    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
 
     async task() {
         try {
             await this.cacheBlocks()
+            await MetaGetter.shared.setSuccess(META_KEY_ERC_BLOCKS, true)
         } catch (e) {
+            await MetaGetter.shared.setSuccess(META_KEY_ERC_BLOCKS, false)
             logger.error(`error when caching ERC20 blocks`)
             logger.error(e)
         }
         try {
             await this.cacheTxs()
+            await MetaGetter.shared.setSuccess(META_KEY_ERC_TXS, true)
         } catch (e) {
+            await MetaGetter.shared.setSuccess(META_KEY_ERC_TXS, false)
             logger.error(`error when caching ERC20 transactions`)
             logger.error(e)
         }
@@ -41,7 +49,15 @@ class ErcGetter extends GetterAbstract {
     async cacheBlocks() {
         logger.info('start caching ERC blocks')
         const bulk = this.blocksCollection.collection.initializeUnorderedBulkOp()
-        for (let p = 1; true; p++) {
+
+        let p = 1
+        const blockCountExist = await this.blocksCollection.collection.countDocuments()
+        const success = await MetaGetter.shared.isSuccess(META_KEY_ERC_BLOCKS)
+        if (success) {
+            p = Math.floor(blockCountExist / BUFFER_SIZE) + 1
+        }
+
+        for (; true; p++) {
             const response = await (await fetch(`${Env.erc}/blocks?page=${p}&count=${BUFFER_SIZE}&sortOrder=asc`)).json() as Getter.ErcBlocksResponse
             if (response.data.blocks.length == 0)
                 break;
@@ -59,7 +75,15 @@ class ErcGetter extends GetterAbstract {
     async cacheTxs() {
         logger.info('start caching ERC txs')
         const bulk = this.txsCollection.collection.initializeUnorderedBulkOp()
-        for (let p = 1; true; p++) {
+        let p = 1
+        const txCountExist = await this.txsCollection.collection.countDocuments()
+        const success = MetaGetter.shared.isSuccess(META_KEY_ERC_TXS)
+
+        if (success) {
+            p = Math.floor(txCountExist / BUFFER_SIZE) + 1
+        }
+
+        for (; true; p++) {
             const uri = `${Env.erc}/txs?page=${p}&count=${BUFFER_SIZE}&sortOrder=asc`
             const response = await (await fetch(uri)).json() as Getter.ErcTxsResponse
             if (response.data.txs.length == 0)
