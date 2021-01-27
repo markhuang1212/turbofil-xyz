@@ -21,7 +21,7 @@ class MetaGetter extends GetterAbstract {
     }
 
     async setSuccess(key: string, val: boolean) {
-        await this.metaCollection.collection.updateOne({ key }, { success: val }, { upsert: true })
+        await this.metaCollection.collection.updateOne({ key }, { $set: { success: val } }, { upsert: true })
     }
 
 }

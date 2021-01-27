@@ -68,7 +68,8 @@ class ErcGetter extends GetterAbstract {
                 })
             }
         }
-        await bulk.execute()
+        if (bulk.length >= 1)
+            await bulk.execute()
         logger.info('caching ERC blocks complete.')
     }
 
