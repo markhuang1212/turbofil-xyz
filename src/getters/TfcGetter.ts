@@ -8,6 +8,7 @@ import LoggerShared from "../LoggerShared";
 
 const BUFFER_SIZE = 64
 const logger = LoggerShared.child({ service: 'GETTER::TFC' })
+const META_KEY_TFC_DB_BLOCKS_AND_TXS = 'tfc-db-blocks-and-transactions'
 
 class TfcGetter extends GetterAbstract {
 
@@ -15,11 +16,26 @@ class TfcGetter extends GetterAbstract {
 
     blocksCollection = new CollectionAbstract<Getter.TfcBlock>(MongoClientShared, 'tfc', 'blocks')
     txCollection = new CollectionAbstract<Getter.TfcTransaction>(MongoClientShared, 'tfc', 'transactions')
+    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
 
     async task() {
         try {
             await this.cacheBlocksAndTransactions()
+            await this.metaCollection.collection.updateOne({
+                key: META_KEY_TFC_DB_BLOCKS_AND_TXS
+            }, {
+                $set: {
+                    success: true
+                }
+            }, { upsert: true })
         } catch (e) {
+            await this.metaCollection.collection.updateOne({
+                key: META_KEY_TFC_DB_BLOCKS_AND_TXS
+            }, {
+                $set: {
+                    success: false
+                }
+            }, { upsert: true })
             logger.error('Error when caching TFC blocks and transactions')
             logger.error(e)
         }
@@ -39,7 +55,20 @@ class TfcGetter extends GetterAbstract {
             = await (await fetch(`${Env.tfc}/blockHeight`)).json()
         const blockHeight = blockHeightResponse.data.blockHeight
 
-        for (let page = 1; page < Math.ceil(blockHeight / BUFFER_SIZE) + 1; page++) {
+        const blockExistCount = await this.blocksCollection.collection.countDocuments()
+
+        if (blockHeight === blockExistCount) {
+            logger.info('No TFC blocks to cache.')
+            return
+        }
+
+        let page = 1;
+        const meta = await this.metaCollection.collection.findOne({ key: META_KEY_TFC_DB_BLOCKS_AND_TXS })
+        if (meta?.success === true) {
+            page = Math.floor(blockExistCount / BUFFER_SIZE) + 1
+        }
+
+        for (; page < Math.ceil(blockHeight / BUFFER_SIZE) + 1; page++) {
             const blockResponse: Getter.TfcBlockResponse
                 = await (await fetch(`${Env.tfc}/blocks?page=${page}&count=${BUFFER_SIZE}`)).json()
             const blocks = blockResponse.data.blocks
