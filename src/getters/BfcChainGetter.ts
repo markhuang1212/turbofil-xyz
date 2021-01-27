@@ -6,6 +6,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import CollectionAbstract from "./CollectionAbstract";
 import Env from '../env.json'
 import LoggerShared from "../LoggerShared";
+import MetaGetter from "./MetaGetter";
 
 /**
  * The backend fetch data starting from FIRST_DAY
@@ -20,23 +21,14 @@ class BfcChainGetter extends GetterAbstract {
     static shared = new BfcChainGetter()
 
     rewardCollection = new CollectionAbstract<Getter.BfcChainReward>(MongoClientShared, 'bfc-chain', 'rewards')
-    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
     tradeCollection = new CollectionAbstract<Getter.BfcChainTrade>(MongoClientShared, 'bfc-chain', 'trade')
 
     async task() {
         try {
             await this.cacheRewards()
-            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_CHAIN_REWARDS }, {
-                $set: {
-                    success: true
-                }
-            }, { upsert: true })
+            await MetaGetter.shared.setSuccess(META_KEY_BFC_CHAIN_REWARDS, true)
         } catch (e) {
-            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_CHAIN_REWARDS }, {
-                $set: {
-                    success: false
-                }
-            }, { upsert: true })
+            await MetaGetter.shared.setSuccess(META_KEY_BFC_CHAIN_REWARDS, false)
             logger.error('Error when caching rewards')
             logger.debug(e)
         }
@@ -51,11 +43,8 @@ class BfcChainGetter extends GetterAbstract {
         logger.info('Start caching')
         let day_temp: Dayjs
 
-        const meta = await this.metaCollection.collection.findOne({ key: META_KEY_BFC_CHAIN_REWARDS })
-        if (meta == null) {
-            day_temp = dayjs(FIRST_DAY)
-        } else if (meta.success === false) {
-            logger.info('Re-caching rewards')
+        const success = await MetaGetter.shared.isSuccess(META_KEY_BFC_CHAIN_REWARDS)
+        if (!success) {
             day_temp = dayjs(FIRST_DAY)
         } else {
             logger.info('Lazy caching rewards')
@@ -214,7 +203,7 @@ class BfcChainGetter extends GetterAbstract {
         const res_remote = await (await fetch(url)).json() as Getter.BfcChainFnTradeResponse
 
         await this.tradeCollection.collection.updateOne({
-            afid, 
+            afid,
             date: dayjs(date, 'YYYYMMDD').toDate(),
             'rns.rnid': rnid
         }, {

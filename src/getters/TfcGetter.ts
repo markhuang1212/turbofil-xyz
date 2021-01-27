@@ -5,6 +5,7 @@ import GetterAbstract from "./GetterAbstract";
 import Env from '../env.json'
 import fetch from 'node-fetch'
 import LoggerShared from "../LoggerShared";
+import MetaGetter from "./MetaGetter";
 
 const BUFFER_SIZE = 64
 const logger = LoggerShared.child({ service: 'GETTER::TFC' })
@@ -16,26 +17,13 @@ class TfcGetter extends GetterAbstract {
 
     blocksCollection = new CollectionAbstract<Getter.TfcBlock>(MongoClientShared, 'tfc', 'blocks')
     txCollection = new CollectionAbstract<Getter.TfcTransaction>(MongoClientShared, 'tfc', 'transactions')
-    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
 
     async task() {
         try {
             await this.cacheBlocksAndTransactions()
-            await this.metaCollection.collection.updateOne({
-                key: META_KEY_TFC_DB_BLOCKS_AND_TXS
-            }, {
-                $set: {
-                    success: true
-                }
-            }, { upsert: true })
+            await MetaGetter.shared.setSuccess(META_KEY_TFC_DB_BLOCKS_AND_TXS, true)
         } catch (e) {
-            await this.metaCollection.collection.updateOne({
-                key: META_KEY_TFC_DB_BLOCKS_AND_TXS
-            }, {
-                $set: {
-                    success: false
-                }
-            }, { upsert: true })
+            await MetaGetter.shared.setSuccess(META_KEY_TFC_DB_BLOCKS_AND_TXS, false)
             logger.error('Error when caching TFC blocks and transactions')
             logger.error(e)
         }
@@ -63,8 +51,8 @@ class TfcGetter extends GetterAbstract {
         }
 
         let page = 1;
-        const meta = await this.metaCollection.collection.findOne({ key: META_KEY_TFC_DB_BLOCKS_AND_TXS })
-        if (meta?.success === true) {
+        const success = await MetaGetter.shared.isSuccess(META_KEY_TFC_DB_BLOCKS_AND_TXS)
+        if (success) {
             page = Math.floor(blockExistCount / BUFFER_SIZE) + 1
         }
 

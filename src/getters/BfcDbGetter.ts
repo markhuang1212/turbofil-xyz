@@ -6,6 +6,7 @@ import fetch from 'node-fetch'
 import Env from '../env.json'
 import { Getter, Handler } from "../Types";
 import LoggerShared from "../LoggerShared";
+import MetaGetter from "./MetaGetter";
 
 const FIRST_DAY = '20200701'
 const META_KEY_BFC_DB_REWARDS = 'bfc-db-uploads'
@@ -16,7 +17,6 @@ class BfcDbGetter extends GetterAbstract {
 
     static shared = new BfcDbGetter()
 
-    metaCollection = new CollectionAbstract<Getter.DBMetaData>(MongoClientShared, 'meta', 'meta')
     isCaching = false
 
     async task() {
@@ -25,19 +25,11 @@ class BfcDbGetter extends GetterAbstract {
         this.isCaching = true
         try {
             await this.cacheUploads()
-            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_DB_REWARDS }, {
-                $set: {
-                    success: true
-                }
-            }, { upsert: true })
+            await MetaGetter.shared.setSuccess(META_KEY_BFC_DB_REWARDS, true)
         } catch (e) {
             logger.error('Error when caching uploads')
             logger.error(e)
-            await this.metaCollection.collection.updateOne({ key: META_KEY_BFC_DB_REWARDS }, {
-                $set: {
-                    success: false
-                }
-            }, { upsert: true })
+            await MetaGetter.shared.setSuccess(META_KEY_BFC_DB_REWARDS, false)
             this.isCaching = false
             return
         }
@@ -68,12 +60,9 @@ class BfcDbGetter extends GetterAbstract {
 
         let day_temp: Dayjs
 
-        const meta = await this.metaCollection.collection.findOne({ key: META_KEY_BFC_DB_REWARDS })
-        if (meta === null) {
+        const success = await MetaGetter.shared.isSuccess(META_KEY_BFC_DB_REWARDS)
+        if (!success) {
             day_temp = dayjs(FIRST_DAY)
-        } else if (meta.success === false) {
-            day_temp = dayjs(FIRST_DAY)
-            logger.info('Re-cache all uploads')
         } else {
             day_temp = dayjs(FIRST_DAY)
             const most_recent_doc =
