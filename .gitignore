@@ -3,3 +3,4 @@ node_modules
 bin/redis
 *.rdb
 logs
+src/playground.ts

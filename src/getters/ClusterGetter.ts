@@ -109,6 +109,28 @@ class ClusterGetter extends GetterAbstract {
         const bulk = this.rnodeCollections.get(cluster)!.collection.initializeUnorderedBulkOp()
 
         for (let i = 0; i < rnodeInfo.length; i++) {
+
+            if (rnodeInfo[i].web !== rnodeInfo[i].proc ||
+                rnodeInfo[i].proc !== rnodeInfo[i].running ||
+                typeof rnodeInfo[i].web !== 'string') {
+                logger.info(`rnode ${rnodeInfo[i].rnId} in cluster ${cluster} is invalid.`)
+                let rnode: Getter.RNode = {
+                    rn_id: rnodeInfo[i].rnId,
+                    runStatus: false,
+                    backendStatus: false,
+                    loopStatus: false,
+                    web: rnodeInfo[i].web ?? '',
+                    proc: rnodeInfo[i].proc ?? '',
+                    running: rnodeInfo[i].running ?? '',
+                    num_of_fnodes: 0,
+                    fnodes: [],
+                    totalStorage: 0,
+                    hasStorage: 0
+                }
+                bulk.find({ rn_id: rnode.rn_id }).upsert().update({ $set: rnode })
+                continue
+            }
+
             const rnStatusUri = `${rnodeUri}/rnStatus/${rnodeInfo[i].rnId}`
             const fnStatusUri = `${rnodeUri}/fnStatus/${rnodeInfo[i].rnId}`
 
