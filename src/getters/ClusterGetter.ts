@@ -208,7 +208,7 @@ class ClusterGetter extends GetterAbstract {
                     loopStatus: val.loopStatus,
                     backendStatus: val.backendStatus,
                     runStatus: val.runStatus,
-                    dead: val.backendStatus,
+                    dead: !val.backendStatus,
                     fnodeNum: val.num_of_fnodes as number,
                     totalStorage: val.totalStorage as number,
                     hasStorage: val.hasStorage as number,
