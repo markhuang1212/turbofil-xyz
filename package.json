@@ -24,7 +24,7 @@
     "express-pino-logger": "^5.0.0",
     "mocha": "^8.2.1",
     "mongodb": "^3.6.3",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "pino": "^6.9.0",
     "pino-http": "^5.3.0",
     "pino-pretty": "^4.3.0",
